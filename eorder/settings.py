@@ -42,6 +42,8 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'eorder.urls'
 
+WSGI_APPLICATION = 'eorder.wsgi.application'
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
