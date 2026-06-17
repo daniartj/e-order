@@ -42,6 +42,11 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'eorder.urls'
 
+WSGI_APPLICATION = 'eorder.wsgi.application'
+CSRF_TRUSTED_ORIGINS = [
+    "https://e-order.up.railway.app",
+]
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
