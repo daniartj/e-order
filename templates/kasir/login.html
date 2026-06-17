@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% block title %}E-Order — Login Kasir{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-light flex items-center
+            justify-center px-4"
+>
+    <div class="w-full max-w-sm">
+
+        <!-- Logo -->
+        <div class="text-center mb-8">
+            <div class="w-20 h-20 bg-primary rounded-3xl flex items-center
+                        justify-center mx-auto mb-4 shadow-card">
+                {% load static %}
+                <img src="{% static 'img/logo.png' %}" alt="E-Order" class="w-12 h-12 object-contain" />
+            </div>
+            <h1 class="text-2xl font-extrabold text-primary">E-Order</h1>
+            <p class="text-muted text-sm mt-1">Dashboard Kasir</p>
+        </div>
+
+        <!-- Card Form -->
+        <div class="bg-white rounded-3xl shadow-card p-6">
+
+            <h2 class="text-lg font-bold text-primary mb-5">
+                🔐 Login
+            </h2>
+
+            <!-- Error message -->
+            {% if error %}
+            <div class="bg-red-50 border border-red-200 rounded-2xl
+                        px-4 py-3 mb-4 flex items-center gap-2">
+                <span>❌</span>
+                <p class="text-sm text-red-600">{{ error }}</p>
+            </div>
+            {% endif %}
+
+            <form method="POST" action="{% url 'kasir:login' %}">
+                {% csrf_token %}
+
+                <!-- Username -->
+                <div class="mb-4">
+                    <label class="block text-xs font-semibold text-primary
+                                  mb-1.5">
+                        Username
+                    </label>
+                    <input
+                        type="text"
+                        name="username"
+                        placeholder="Masukkan username"
+                        autocomplete="username"
+                        value="{{ request.POST.username }}"
+                        class="w-full bg-gray-50 rounded-xl px-4 py-3
+                               text-sm text-primary placeholder-gray-400
+                               focus:outline-none focus:ring-2
+                               focus:ring-primary focus:bg-white
+                               transition-all border border-gray-100"
+                    />
+                </div>
+
+                <!-- Password -->
+                <div class="mb-6" x-data="{ lihatPassword: false }">
+                    <label class="block text-xs font-semibold text-primary
+                                  mb-1.5">
+                        Password
+                    </label>
+                    <div class="relative">
+                        <input
+                            :type="lihatPassword ? 'text' : 'password'"
+                            name="password"
+                            placeholder="Masukkan password"
+                            autocomplete="current-password"
+                            class="w-full bg-gray-50 rounded-xl px-4 py-3
+                                   pr-12 text-sm text-primary
+                                   placeholder-gray-400
+                                   focus:outline-none focus:ring-2
+                                   focus:ring-primary focus:bg-white
+                                   transition-all border border-gray-100"
+                        />
+                        <button
+                            type="button"
+                            @click="lihatPassword = !lihatPassword"
+                            class="absolute right-3 top-1/2 -translate-y-1/2
+                                   text-muted text-lg"
+                        >
+                            <span x-show="!lihatPassword">👁️</span>
+                            <span x-show="lihatPassword">🙈</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tombol Login -->
+                <button
+                    type="submit"
+                    class="w-full bg-primary text-white font-bold py-3.5
+                           rounded-2xl active:scale-95 transition-transform
+                           shadow-card"
+                >
+                    Masuk →
+                </button>
+
+            </form>
+        </div>
+
+        <p class="text-center text-xs text-muted mt-6">
+            E-Order &copy; 2025 — Sistem Pemesanan Digital
+        </p>
+
+    </div>
+</div>
+{% endblock %}
+

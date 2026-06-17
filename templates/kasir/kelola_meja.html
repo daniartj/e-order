@@ -1,0 +1,106 @@
+{% extends 'kasir/base_kasir.html' %}
+{% block title %}E-Order — Kelola Meja{% endblock %}
+{% block subtitle %}Kelola Meja{% endblock %}
+
+{% block kasir_content %}
+<div class="min-h-screen bg-gray-100">
+
+    <!-- Header -->
+    <div class="bg-primary shadow-card sticky top-0 z-20">
+        <div class="px-4 py-4 flex items-center gap-3 max-w-4xl mx-auto">
+            <a href="{% url 'kasir:dashboard' %}"
+               class="w-9 h-9 bg-white bg-opacity-10 rounded-xl
+                      flex items-center justify-center text-white
+                      font-bold text-lg">←</a>
+            <div>
+                <h1 class="text-white font-extrabold text-lg leading-tight">
+                    🪑 Kelola Meja
+                </h1>
+                <p class="text-white text-opacity-70 text-xs">
+                    {{ semua_meja.count }} meja terdaftar
+                </p>
+            </div>
+            <a href="{% url 'kasir:tambah_meja' %}"
+               class="ml-auto bg-secondary text-white text-sm
+                      font-bold px-4 py-2 rounded-xl
+                      active:scale-95 transition-transform">
+                + Tambah
+            </a>
+        </div>
+    </div>
+
+    <div class="max-w-4xl mx-auto px-4 py-4 space-y-3">
+        {% for meja in semua_meja %}
+        <div class="bg-white rounded-2xl shadow-soft px-4 py-3
+                    flex items-center justify-between">
+
+            <!-- Info Meja -->
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-xl flex items-center
+                            justify-center text-2xl
+                            {% if meja.is_aktif %}bg-green-100
+                            {% else %}bg-gray-100{% endif %}">
+                    🪑
+                </div>
+                <div>
+                    <p class="font-bold text-primary text-sm">
+                        Meja {{ meja.nomor_meja }}
+                    </p>
+                    <p class="text-xs text-muted">
+                        {{ meja.nama_meja }} · {{ meja.kapasitas }} orang
+                    </p>
+                    <span class="text-xs font-semibold
+                        {% if meja.is_aktif %}text-green-600
+                        {% else %}text-red-400{% endif %}">
+                        {% if meja.is_aktif %}● Aktif
+                        {% else %}● Nonaktif{% endif %}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Tombol Aksi -->
+            <div class="flex items-center gap-2">
+
+                <!-- ✅ Tombol QR -->
+                <a href="{% url 'kasir:preview_qr' meja.id %}"
+                   class="bg-blue-50 text-blue-600 text-xs font-semibold
+                          px-3 py-2 rounded-xl active:scale-95
+                          transition-transform">
+                    📱 QR
+                </a>
+
+                <!-- Edit -->
+                <a href="{% url 'kasir:edit_meja' meja.id %}"
+                   class="bg-gray-100 text-primary text-xs font-semibold
+                          px-3 py-2 rounded-xl active:scale-95
+                          transition-transform">
+                    Edit
+                </a>
+
+                <!-- Aktifkan / Nonaktifkan -->
+                <a href="{% url 'kasir:toggle_meja' meja.id %}"
+                   class="text-xs font-semibold px-3 py-2 rounded-xl
+                          active:scale-95 transition-transform
+                          {% if meja.is_aktif %}bg-red-50 text-red-500
+                          {% else %}bg-green-50 text-green-600{% endif %}">
+                    {% if meja.is_aktif %}Nonaktifkan
+                    {% else %}Aktifkan{% endif %}
+                </a>
+
+            </div>
+        </div>
+        {% empty %}
+        <div class="bg-white rounded-2xl shadow-soft p-12 text-center">
+            <div class="text-5xl mb-4">🪑</div>
+            <p class="font-semibold text-primary">Belum ada meja</p>
+            <a href="{% url 'kasir:tambah_meja' %}"
+               class="inline-block mt-4 bg-primary text-white text-sm
+                      font-semibold px-5 py-2.5 rounded-xl">
+                + Tambah Meja
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+{% endblock %}

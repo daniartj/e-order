@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}E-Order — Selamat Datang{% endblock %}
+
+
+{% block content %}
+<div
+    x-data="splashScreen()"
+    x-init="mulaiHitung()"
+    class="min-h-screen flex flex-col items-center justify-center bg-primary"
+>
+
+    <!-- Logo & Animasi -->
+    <div
+        x-show="tampilLogo"
+        x-transition:enter="transition ease-out duration-1000"
+        x-transition:enter-start="opacity-0 scale-75"
+        x-transition:enter-end="opacity-100 scale-100"
+        class="flex flex-col items-center"
+    >
+        <div class="w-48 h-48 flex items-center justify-center mx-auto mb-0 ">
+                <img src="{% load static %}{% static 'img/logo.png' %}" alt="E-Order" class="w-40 h-40 object-contain" />
+            </div>
+
+        <!-- Nama App -->
+        <h1 class="text-white text-4xl font-extrabold tracking-tight">
+            E-Order
+        </h1>
+        <p class="text-white text-opacity-70 text-sm mt-2 tracking-widest uppercase">
+            Sistem Pemesanan Digital
+        </p>
+
+        <!-- Divider -->
+        <div class="w-12 h-1 bg-secondary rounded-full mt-6 mb-6"></div>
+
+        <!-- Info Meja -->
+        <div class="bg-white bg-opacity-10 rounded-2xl px-6 py-3">
+            <p class="text-white text-sm text-center">
+                Anda berada di
+                <span class="font-bold text-secondary">
+                    Meja {{ nomor_meja }}
+                </span>
+            </p>
+        </div>
+
+        <!-- Loading dots -->
+        <div class="flex gap-2 mt-8">
+            <div class="w-2 h-2 bg-white rounded-full opacity-40
+                        animate-bounce [animation-delay:0ms]"></div>
+            <div class="w-2 h-2 bg-white rounded-full opacity-40
+                        animate-bounce [animation-delay:150ms]"></div>
+            <div class="w-2 h-2 bg-white rounded-full opacity-40
+                        animate-bounce [animation-delay:300ms]"></div>
+        </div>
+    </div>
+
+</div>
+
+{% block extra_scripts %}
+<script>
+(function() {
+    const mejaSaatIni = "{{ nomor_meja|escapejs }}";
+    const sessionKey  = "{{ session_key|escapejs }}";
+    const tujuan      = "{% url 'pelanggan:daftar_menu' %}";
+
+    // expose untuk Alpine
+    window.splashScreen = function() {
+        return {
+            tampilLogo: false,
+            mulaiHitung() {
+                try {
+                    const mejaSebelumnya = localStorage.getItem('eorder_nomor_meja');
+                    const sessionLama = localStorage.getItem('eorder_session_key');
+
+                    if (mejaSebelumnya !== mejaSaatIni || sessionLama !== sessionKey) {
+                        localStorage.removeItem('eorder_keranjang');
+                        localStorage.setItem('eorder_nomor_meja', mejaSaatIni);
+                        localStorage.setItem('eorder_session_key', sessionKey);
+                    }
+
+                    setTimeout(() => { this.tampilLogo = true; }, 100);
+                    setTimeout(() => { window.location.href = tujuan; }, 2500);
+                } catch (e) {
+                    // fallback agar tidak blank jika localStorage gagal
+                    window.location.href = tujuan;
+                }
+            }
+        }
+    }
+
+    // fallback jika Alpine gagal jalan
+    setTimeout(() => { window.location.href = tujuan; }, 4000);
+})();
+</script>
+{% endblock %}
+
+
+{% endblock %}

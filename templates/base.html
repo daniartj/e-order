@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}E-Order{% endblock %}</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    />
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary  : '#1C1C1E',
+                        secondary: '#F5A623',
+                        surface  : '#FFFFFF',
+                        muted    : '#6B7280',
+                        light    : '#F9FAFB',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    borderRadius: {
+                        '2xl': '1rem',
+                        '3xl': '1.5rem',
+                    },
+                    boxShadow: {
+                        'soft': '0 2px 15px rgba(0,0,0,0.08)',
+                        'card': '0 4px 20px rgba(0,0,0,0.10)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb {
+            background: #D1D5DB;
+            border-radius: 4px;
+        }
+        body { -webkit-font-smoothing: antialiased; }
+    </style>
+
+    {% block extra_head %}{% endblock %}
+</head>
+
+<body class="bg-light font-sans text-primary">
+
+    {% block content %}{% endblock %}
+
+    <!-- Flash Messages -->
+    {% if messages %}
+    <div
+        x-data="{ tampil: true }"
+        x-show="tampil"
+        x-transition
+        class="fixed top-4 right-4 z-50 space-y-2 max-w-xs"
+    >
+        {% for pesan in messages %}
+        <div class="bg-white rounded-2xl shadow-card px-4 py-3 border-l-4
+            {% if 'success' in pesan.tags %}border-green-500
+            {% elif 'error' in pesan.tags %}border-red-500
+            {% elif 'warning' in pesan.tags %}border-yellow-500
+            {% else %}border-blue-500{% endif %}
+            flex items-start gap-3">
+            <p class="text-sm text-gray-700 flex-1">{{ pesan }}</p>
+            <button
+                @click="tampil = false"
+                class="text-gray-300 hover:text-gray-500
+                       text-lg leading-none"
+            >&times;</button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% block extra_scripts %}{% endblock %}
+
+    <!-- ============================== -->
+    <!-- SESSION EXPIRED — Realtime JS  -->
+    <!-- ============================== -->
+    {% if nomor_meja_session or session_expired %}
+    <div
+        id="eorder-overlay"
+        style="display:none;position:fixed;top:0;left:0;
+               right:0;bottom:0;z-index:99999;
+               align-items:center;justify-content:center;
+               padding:24px;background:rgba(0,0,0,0.7);"
+    >
+        <div style="background:white;border-radius:24px;
+                    padding:32px 24px;width:100%;max-width:320px;
+                    text-align:center;
+                    box-shadow:0 25px 60px rgba(0,0,0,0.3);">
+
+            <div id="es-icon" style="width:80px;height:80px;
+                 border-radius:50%;background:#fef9c3;
+                 display:flex;align-items:center;
+                 justify-content:center;margin:0 auto 20px;
+                 font-size:40px;">⏰</div>
+
+            <p id="es-judul" style="font-size:20px;font-weight:800;
+               color:#1C1C1E;margin:0 0 8px;">
+                Waktu Hampir Habis!
+            </p>
+
+            <p id="es-teks" style="font-size:14px;color:#6B7280;
+               line-height:1.6;margin:0 0 20px;">
+                Anda sudah melewati batas akses web pemesanan.
+            </p>
+
+            <div id="es-cdbox" style="background:#fefce8;
+                 border-radius:16px;padding:12px 16px;
+                 margin-bottom:20px;">
+                <p style="font-size:12px;color:#6B7280;margin:0 0 4px;">
+                    Sesi berakhir dalam
+                </p>
+                <p id="es-angka" style="font-size:40px;font-weight:800;
+                   color:#ca8a04;margin:0;">10s</p>
+            </div>
+
+            <button
+                id="es-tombol"
+                onclick="esTunggu()"
+                style="width:100%;background:#1C1C1E;color:white;
+                       font-weight:700;padding:16px;border-radius:16px;
+                       border:none;cursor:pointer;font-size:16px;"
+            >Tunggu Dulu</button>
+
+            <p id="es-ket" style="font-size:12px;color:#6B7280;
+               margin-top:12px;">
+                Sesi berakhir dalam
+                <span id="es-angka-kecil">10 detik</span>
+            </p>
+
+        </div>
+    </div>
+
+    <script>
+    (function() {
+        var EXPIRED    = {% if session_expired %}true{% else %}false{% endif %};
+        var SISA_DETIK = {{ sisa_menit|floatformat:"4u" }} * 60;
+        var CSRF      = '{{ csrf_token }}';
+        var URL_HAPUS = "{% url 'pelanggan:hapus_session' %}";
+        var URL_STATUS = "{% url 'pelanggan:api_session_status' %}";
+        var MEJA      = '{{ nomor_meja_session|escapejs }}';
+
+        var overlay   = null;
+        var timer     = null;
+        var hitung    = 10;
+        var proses    = false;
+        var sudahExpired = EXPIRED;
+
+        function init() {
+            overlay = document.getElementById('eorder-overlay');
+            if (!overlay) {
+                console.log('[DEBUG] Overlay tidak ditemukan!');
+                return;
+            }
+            console.log('[DEBUG] Init dipanggil, EXPIRED:', EXPIRED, 'SISA_DETIK:', SISA_DETIK);
+
+            // Langsung tampilkan jika sudah expired saat load
+            if (sudahExpired) {
+                tampilPeringatan();
+            } else {
+                // Polling setiap 5 detik untuk cek session
+                console.log('[DEBUG] Mulai polling...');
+                setInterval(cekSession, 5000);
+            }
+        }
+
+        function cekSession() {
+            // Skip jika sudah expired atau sedang diproses
+            if (sudahExpired || proses) return;
+
+            console.log('[DEBUG] Cek session dimulai...');
+            fetch(URL_STATUS, {
+                method: 'GET',
+                headers: {
+                    'X-CSRFToken': CSRF,
+                },
+            })
+            .then(function(res) { return res.json(); })
+            .then(function(data) {
+                console.log('[DEBUG] Response:', data);
+                if (data.session_expired && !sudahExpired) {
+                    sudahExpired = true;
+                    tampilPeringatan();
+                } else if (!data.session_expired) {
+                    // Update hitung mundur berdasarkan sisa_menit dari server
+                    hitung = Math.ceil(data.sisa_menit * 60);
+                }
+            })
+            .catch(function(e) {
+                console.log('[DEBUG] Error:', e);
+            });
+        }
+
+        function tampilPeringatan() {
+            if (proses) return;
+            proses = true;
+            overlay.style.display = 'flex';
+
+            // Mulai countdown selalu dari 10 detik
+            hitung = 10;
+
+            updateAngka();
+            timer = setInterval(function() {
+                hitung--;
+                updateAngka();
+                if (hitung <= 0) {
+                    clearInterval(timer);
+                    hapusSesi();
+                }
+            }, 1000);
+        }
+
+        function updateAngka() {
+            var a = document.getElementById('es-angka');
+            var b = document.getElementById('es-angka-kecil');
+            if (a) a.textContent = hitung + 's';
+            if (b) b.textContent = hitung + ' detik';
+        }
+
+        function tampilScanUlang() {
+            var icon  = document.getElementById('es-icon');
+            var judul = document.getElementById('es-judul');
+            var teks  = document.getElementById('es-teks');
+            var cdbox = document.getElementById('es-cdbox');
+            var tom   = document.getElementById('es-tombol');
+            var ket   = document.getElementById('es-ket');
+
+            if (icon) {
+                icon.style.background = '#fee2e2';
+                icon.textContent = '📵';
+            }
+            if (judul) judul.textContent = 'Sesi Berakhir';
+            if (teks)  teks.innerHTML =
+                'Silahkan scan kembali <strong style="color:#1C1C1E">' +
+                'QR Code</strong> di meja Anda untuk memesan kembali.';
+            if (cdbox) cdbox.innerHTML =
+                '<div style="font-size:52px">📱</div>' +
+                '<p style="font-size:12px;color:#6B7280;margin-top:8px">' +
+                'Arahkan kamera ke QR Code di meja ' +
+                '<strong>' + MEJA + '</strong></p>';
+            if (tom) tom.style.display = 'none';
+            if (ket) ket.style.display = 'none';
+        }
+
+        function hapusSesi() {
+            fetch(URL_HAPUS, {
+                method : 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken' : CSRF,
+                },
+            })
+            .then(function() { tampilScanUlang(); })
+            .catch(function() { tampilScanUlang(); });
+        }
+
+        window.esTunggu = function() {
+            clearInterval(timer);
+            fetch("{% url 'pelanggan:reset_session' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': CSRF,
+                },
+            })
+            .then(function() {
+                sudahExpired = false;
+                proses = false;
+                if (overlay) overlay.style.display = 'none';
+            })
+            .catch(function() {
+                // jika gagal, tetap sembunyikan overlay agar user tidak terblokir
+                sudahExpired = false;
+                proses = false;
+                if (overlay) overlay.style.display = 'none';
+            });
+        };
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    })();
+    </script>
+    {% endif %}
+    <!-- END SESSION -->
+
+</body>
+</html>

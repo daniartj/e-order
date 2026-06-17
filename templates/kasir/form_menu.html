@@ -1,0 +1,201 @@
+{% extends 'kasir/base_kasir.html' %}
+{% block title %}E-Order — {{ aksi }} Menu{% endblock %}
+{% block subtitle %}{{ aksi }} Menu{% endblock %}
+{% block kasir_content %}
+
+<div class="min-h-screen bg-gray-100">
+
+    <div class="bg-primary shadow-card sticky top-0 z-20">
+        <div class="px-4 py-4 flex items-center gap-3 max-w-lg mx-auto">
+            <a href="{% url 'kasir:kelola_menu' %}"
+               class="w-9 h-9 bg-white bg-opacity-10 rounded-xl
+                      flex items-center justify-center text-white
+                      font-bold text-lg">←</a>
+            <h1 class="text-white font-extrabold text-lg">
+                🍽️ {{ aksi }} Menu
+            </h1>
+        </div>
+    </div>
+
+    <div class="max-w-lg mx-auto px-4 py-4">
+        <div class="bg-white rounded-2xl shadow-soft p-5">
+
+            {% if error %}
+            <div class="bg-red-50 border border-red-200 rounded-xl
+                        px-4 py-3 mb-4 text-sm text-red-600">
+                ❌ {{ error }}
+            </div>
+            {% endif %}
+
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <!-- Nama Menu -->
+                <div class="mb-4">
+                    <label class="block text-xs font-semibold
+                                  text-primary mb-1.5">
+                        Nama Menu
+                    </label>
+                    <input
+                        type="text"
+                        name="nama_menu"
+                        placeholder="Contoh: Kopi Susu, Nasi Goreng"
+                        {% if menu %}
+                            value="{{ menu.nama_menu }}"
+                        {% endif %}
+                        class="w-full bg-gray-50 rounded-xl px-4 py-3
+                               text-sm focus:outline-none focus:ring-2
+                               focus:ring-primary border border-gray-100"
+                    />
+                </div>
+
+                <!-- Kategori -->
+                <div class="mb-4">
+                    <label class="block text-xs font-semibold
+                                  text-primary mb-1.5">
+                        Kategori
+                    </label>
+                    <select
+                        name="kategori"
+                        class="w-full bg-gray-50 rounded-xl px-4 py-3
+                               text-sm focus:outline-none focus:ring-2
+                               focus:ring-primary border border-gray-100"
+                    >
+                        <option value="">-- Pilih Kategori --</option>
+                        {% for kat in semua_kategori %}
+                        <option
+                            value="{{ kat.id }}"
+                            {% if menu and menu.kategori.id == kat.id %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ kat.ikon }} {{ kat.nama_kategori }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Harga -->
+                <div class="mb-4">
+                    <label class="block text-xs font-semibold
+                                  text-primary mb-1.5">
+                        Harga (Rp)
+                    </label>
+                    <input
+                        type="number"
+                        name="harga"
+                        placeholder="Contoh: 15000"
+                        min="0"
+                        {% if menu %}
+                            value="{{ menu.harga }}"
+                        {% endif %}
+                        class="w-full bg-gray-50 rounded-xl px-4 py-3
+                               text-sm focus:outline-none focus:ring-2
+                               focus:ring-primary border border-gray-100"
+                    />
+                </div>
+
+                <!-- Deskripsi -->
+                <div class="mb-4">
+                    <label class="block text-xs font-semibold
+                                  text-primary mb-1.5">
+                        Deskripsi
+                        <span class="text-muted font-normal">(opsional)</span>
+                    </label>
+                    <textarea
+                        name="deskripsi"
+                        placeholder="Deskripsi singkat menu..."
+                        rows="3"
+                        class="w-full bg-gray-50 rounded-xl px-4 py-3
+                               text-sm resize-none focus:outline-none
+                               focus:ring-2 focus:ring-primary
+                               border border-gray-100"
+                    >{% if menu %}{{ menu.deskripsi }}{% endif %}</textarea>
+                </div>
+
+                <!-- Foto -->
+                <div class="mb-4">
+                    <label class="block text-xs font-semibold
+                                  text-primary mb-1.5">
+                        Foto Menu
+                        <span class="text-muted font-normal">(opsional)</span>
+                    </label>
+                    {% if menu and menu.foto %}
+                    <div class="mb-2">
+                        <img
+                            src="{{ menu.foto.url }}"
+                            alt="{{ menu.nama_menu }}"
+                            class="w-24 h-24 object-cover rounded-xl"
+                        />
+                        <p class="text-xs text-muted mt-1">
+                            Upload baru untuk mengganti foto
+                        </p>
+                    </div>
+                    {% endif %}
+                    <input
+                        type="file"
+                        name="foto"
+                        accept="image/*"
+                        class="w-full bg-gray-50 rounded-xl px-4 py-3
+                               text-sm border border-gray-100
+                               file:mr-3 file:py-1 file:px-3
+                               file:rounded-lg file:border-0
+                               file:bg-primary file:text-white
+                               file:text-xs file:font-semibold"
+                    />
+                </div>
+
+                <!-- Unggulan Toggle -->
+                <div class="mb-6"
+                     x-data="{ cek: {% if menu and menu.is_unggulan %}true{% else %}false{% endif %} }">
+                    <div class="flex items-center gap-3 cursor-pointer"
+                         @click="cek = !cek">
+
+                        <!-- Toggle visual -->
+                        <div
+                            :class="cek ? 'bg-secondary' : 'bg-gray-200'"
+                            class="w-12 h-6 rounded-full transition-colors
+                                   relative flex-shrink-0"
+                        >
+                            <div
+                                :class="cek ? 'translate-x-6' : 'translate-x-1'"
+                                class="w-4 h-4 bg-white rounded-full
+                                       absolute top-1 transition-transform
+                                       shadow-sm"
+                            ></div>
+                        </div>
+
+                        <!-- Checkbox hidden -->
+                        <input
+                            type="checkbox"
+                            name="is_unggulan"
+                            :checked="cek"
+                            class="hidden"
+                        />
+
+                        <div>
+                            <p class="text-sm font-semibold text-primary">
+                                ⭐ Menu Unggulan
+                            </p>
+                            <p class="text-xs text-muted">
+                                Tampil di bagian atas halaman menu
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <button
+                    type="submit"
+                    class="w-full bg-primary text-white font-bold
+                           py-3.5 rounded-2xl active:scale-95
+                           transition-transform shadow-card"
+                >
+                    {{ aksi }} Menu
+                </button>
+
+            </form>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

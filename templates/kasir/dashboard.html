@@ -1,0 +1,457 @@
+{% extends 'kasir/base_kasir.html' %}
+{% load static %}
+{% block title %}E-Order — Dashboard Kasir{% endblock %}
+
+{% block kasir_content %}
+<div
+    x-data="dashboard()"
+x-init="inisialisasi()"
+    class="px-4 py-4"
+>
+
+    <!-- Statistik -->
+    <div class="grid grid-cols-3 gap-3 mb-4">
+        <button
+            @click="gantiFilter('pending')"
+            :class="filterAktif === 'pending' ? 'ring-2 ring-yellow-400' : ''"
+            class="bg-white rounded-2xl shadow-soft p-4
+                   text-center active:scale-95 transition-all"
+        >
+            <p class="text-2xl font-extrabold text-yellow-500"
+               x-text="jumlahPending"></p>
+            <p class="text-xs text-muted mt-1">⏳ Pending</p>
+        </button>
+
+        <button
+            @click="gantiFilter('diproses')"
+            :class="filterAktif === 'diproses' ? 'ring-2 ring-blue-400' : ''"
+            class="bg-white rounded-2xl shadow-soft p-4
+                   text-center active:scale-95 transition-all"
+        >
+            <p class="text-2xl font-extrabold text-blue-500"
+               x-text="jumlahDiproses"></p>
+            <p class="text-xs text-muted mt-1">👨‍🍳 Diproses</p>
+        </button>
+
+        <button
+            @click="gantiFilter('selesai')"
+            :class="filterAktif === 'selesai' ? 'ring-2 ring-green-400' : ''"
+            class="bg-white rounded-2xl shadow-soft p-4
+                   text-center active:scale-95 transition-all"
+        >
+            <p class="text-2xl font-extrabold text-green-500"
+               x-text="jumlahSelesai"></p>
+            <p class="text-xs text-muted mt-1">✅ Selesai</p>
+        </button>
+    </div>
+
+
+    <!-- Filter Tab -->
+    <div class="flex gap-2 mb-4 overflow-x-auto scrollbar-hide">
+        <template x-for="tab in filterTabs" :key="tab.value">
+            <button
+                @click="gantiFilter(tab.value)"
+                :class="filterAktif === tab.value
+                    ? 'bg-primary text-white shadow-soft'
+                    : 'bg-white text-muted shadow-soft'"
+                class="flex-shrink-0 px-4 py-2 rounded-xl text-sm
+                       font-semibold transition-all active:scale-95"
+                x-text="tab.label"
+            ></button>
+        </template>
+    </div>
+
+
+    <!-- Indikator Live -->
+    <div class="flex items-center gap-2 mb-3">
+        <div
+            :class="sedangRefresh ? 'bg-yellow-400' : 'bg-green-400'"
+            class="w-2 h-2 rounded-full animate-pulse"
+        ></div>
+        <p class="text-xs text-muted">Update otomatis setiap 5 detik</p>
+    </div>
+
+
+    <!-- Loading -->
+    <div x-show="sedangMuat" class="text-center py-12">
+        <div class="inline-flex items-center gap-2 text-muted text-sm">
+            <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10"
+                        stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor"
+                      d="M4 12a8 8 0 018-8v8z"></path>
+            </svg>
+            Memuat...
+        </div>
+    </div>
+
+
+    <!-- Daftar Pesanan -->
+    <div x-show="!sedangMuat" class="space-y-3">
+
+        <div
+            x-show="daftarPesanan.length === 0"
+            class="bg-white rounded-2xl shadow-soft p-12 text-center"
+        >
+            <div class="text-5xl mb-4">📋</div>
+            <p class="font-semibold text-primary">Belum ada pesanan</p>
+            <p class="text-sm text-muted mt-1">
+                Pesanan baru muncul otomatis
+            </p>
+        </div>
+
+        <template
+            x-for="pesanan in daftarPesanan"
+            :key="pesanan.nomor_pesanan"
+        >
+            <div class="bg-white rounded-2xl shadow-soft overflow-hidden">
+
+                <!-- Header -->
+                <div class="px-4 py-3 flex items-center
+                            justify-between border-b border-gray-50">
+                    <div class="flex items-center gap-3">
+                        <span
+                            :class="{
+                                'bg-yellow-100 text-yellow-700': pesanan.status === 'pending',
+                                'bg-blue-100 text-blue-700'   : pesanan.status === 'diproses',
+                                'bg-green-100 text-green-700' : pesanan.status === 'selesai',
+                                'bg-red-100 text-red-700'     : pesanan.status === 'dibatal',
+                            }"
+                            class="text-xs font-bold px-2.5 py-1 rounded-full"
+                            x-text="pesanan.label_status"
+                        ></span>
+                        <div>
+                            <p class="text-sm font-bold text-primary"
+                               x-text="pesanan.nomor_pesanan"></p>
+                            <p class="text-xs text-muted"
+x-text="'Meja ' + pesanan.nomor_meja +
+                                       ' · ' + pesanan.waktu_pesan + ' WIB'"
+                            </p>
+                        </div>
+                    </div>
+                    <p class="text-sm font-extrabold text-primary"
+                       x-text="pesanan.total_format"></p>
+                </div>
+
+                <!-- Item -->
+                <div class="px-4 py-2.5">
+                    <p class="text-xs text-muted"
+                       x-text="pesanan.detail.map(
+                           i => i.jumlah + 'x ' + i.nama_menu
+                       ).join(' · ')">
+                    </p>
+                    <div class="flex items-center gap-2 mt-1">
+                        <span class="text-xs text-muted"
+                              x-text="pesanan.metode_bayar"></span>
+                        <span x-show="pesanan.nomor_whatsapp"
+                              class="text-xs text-green-600">· 📲 WA</span>
+                        <span x-show="pesanan.catatan"
+                              class="text-xs text-orange-500">· 📝 Catatan</span>
+                    </div>
+                </div>
+
+                <!-- Aksi -->
+                <div class="px-4 pb-3 flex gap-2">
+                    <button
+                        @click="bukaDetail(pesanan.nomor_pesanan)"
+                        class="flex-1 bg-gray-100 text-primary text-sm
+                               font-semibold py-2.5 rounded-xl
+                               active:bg-gray-200 transition-colors"
+                    >Detail</button>
+
+                    <button
+                        x-show="pesanan.status === 'pending'"
+                        @click="updateStatus(pesanan.nomor_pesanan, 'diproses')"
+                        class="flex-1 bg-blue-500 text-white text-sm
+                               font-semibold py-2.5 rounded-xl
+                               active:scale-95 transition-transform"
+                    >👨‍🍳 Proses</button>
+
+                    <button
+                        x-show="pesanan.status === 'diproses'"
+                        @click="updateStatus(pesanan.nomor_pesanan, 'selesai')"
+                        class="flex-1 bg-green-500 text-white text-sm
+                               font-semibold py-2.5 rounded-xl
+                               active:scale-95 transition-transform"
+                    >✅ Selesai</button>
+
+                    <div
+                        x-show="pesanan.status === 'selesai'"
+                        class="flex-1 bg-green-50 text-green-600 text-sm
+                               font-semibold py-2.5 rounded-xl text-center"
+                    >✅ Selesai</div>
+
+                    <button
+                        x-show="pesanan.status !== 'selesai' &&
+                                pesanan.status !== 'dibatal'"
+                        @click="updateStatus(pesanan.nomor_pesanan, 'dibatal')"
+                        class="w-10 h-10 bg-red-50 text-red-500 rounded-xl
+                               flex items-center justify-center
+                               active:scale-95 transition-transform flex-shrink-0"
+                    >✕</button>
+                </div>
+
+            </div>
+        </template>
+    </div>
+
+
+    <!-- Modal Detail -->
+    <div
+        x-show="tampilModal"
+        x-transition:enter="transition ease-out duration-200"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100"
+        @click="tampilModal = false"
+        class="fixed inset-0 bg-black bg-opacity-50 z-50
+               flex items-end sm:items-center justify-center"
+    >
+        <div
+            x-show="tampilModal"
+            x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="opacity-0 translate-y-full"
+            x-transition:enter-end="opacity-100 translate-y-0"
+            @click.stop
+            class="bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl
+                   w-full max-w-md max-h-[85vh] flex flex-col"
+        >
+            <div class="px-5 py-4 border-b border-gray-100
+                        flex items-center justify-between flex-shrink-0">
+                <div>
+                    <h3 class="font-bold text-primary"
+                        x-text="detailPesanan.nomor_pesanan"></h3>
+                    <p class="text-xs text-muted"
+                    x-text="'Meja ' + detailPesanan.nomor_meja +
+                    ' · ' + detailPesanan.waktu_pesan"
+                </div>
+                <button
+                    @click="tampilModal = false"
+                    class="w-8 h-8 bg-gray-100 rounded-full flex
+                           items-center justify-center font-bold"
+                >✕</button>
+            </div>
+
+            <div class="overflow-y-auto flex-1 px-5 py-4 space-y-4">
+                <div class="grid grid-cols-2 gap-2">
+                    <div class="bg-gray-50 rounded-xl p-3">
+                        <p class="text-xs text-muted">Status</p>
+                        <p class="text-sm font-bold text-primary mt-0.5"
+                           x-text="detailPesanan.label_status"></p>
+                    </div>
+                    <div class="bg-gray-50 rounded-xl p-3">
+                        <p class="text-xs text-muted">Pembayaran</p>
+                        <p class="text-sm font-bold text-primary mt-0.5"
+                           x-text="detailPesanan.metode_bayar"></p>
+                    </div>
+                    <div class="bg-gray-50 rounded-xl p-3">
+                        <p class="text-xs text-muted">WhatsApp</p>
+                        <p class="text-sm font-bold text-primary mt-0.5"
+                           x-text="detailPesanan.nomor_wa || '-'"></p>
+                    </div>
+                    <div class="bg-gray-50 rounded-xl p-3">
+                        <p class="text-xs text-muted">Total</p>
+                        <p class="text-sm font-bold text-secondary mt-0.5"
+                           x-text="detailPesanan.total_format"></p>
+                    </div>
+                </div>
+
+                <div x-show="detailPesanan.catatan"
+                     class="bg-orange-50 rounded-xl p-3">
+                    <p class="text-xs text-muted mb-1">📝 Catatan</p>
+                    <p class="text-sm text-primary"
+                       x-text="detailPesanan.catatan"></p>
+                </div>
+
+                <div>
+                    <p class="text-xs font-bold text-muted mb-2">
+                        ITEM PESANAN
+                    </p>
+                    <div class="space-y-2">
+                        <template
+                            x-for="item in detailPesanan.detail"
+                            :key="item.nama_menu"
+                        >
+                            <div class="flex items-center justify-between
+                                        bg-gray-50 rounded-xl px-3 py-2.5">
+                                <div>
+                                    <p class="text-sm font-semibold text-primary"
+                                       x-text="item.nama_menu"></p>
+                                    <p class="text-xs text-muted"
+                                       x-text="item.jumlah + 'x Rp ' +
+                                               item.harga.toLocaleString('id-ID')"></p>
+                                </div>
+                                <p class="text-sm font-bold text-primary"
+                                   x-text="'Rp ' + item.subtotal.toLocaleString('id-ID')"></p>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+
+            <div class="px-5 py-4 border-t border-gray-100
+                        flex-shrink-0 space-y-2">
+                <!-- ✅ :href bukan href biasa -->
+                
+                    <a :href="'/kasir/struk/' + detailPesanan.nomor_pesanan + '/'"
+                    target="_blank"
+                    class="w-full bg-secondary text-white font-semibold
+                           py-3 rounded-2xl active:scale-95 transition-transform
+                           flex items-center justify-center gap-2 block text-center"
+                >
+                    🖨️ Print Struk
+                </a>
+
+                <button
+                    @click="tampilModal = false"
+                    class="w-full bg-gray-100 text-primary font-semibold
+                           py-3 rounded-2xl active:scale-95 transition-transform"
+                >
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Toast -->
+    <div
+        x-show="tampilToast"
+        x-transition:enter="transition ease-out duration-300"
+        x-transition:enter-start="opacity-0 translate-y-2"
+        x-transition:enter-end="opacity-100 translate-y-0"
+        x-transition:leave="transition ease-in duration-200"
+        x-transition:leave-end="opacity-0"
+        class="fixed bottom-6 left-4 right-4 z-50 max-w-sm mx-auto"
+    >
+        <div
+            class="bg-primary text-white text-sm font-medium
+                   px-4 py-3 rounded-2xl shadow-card text-center"
+            x-text="pesanToast"
+        ></div>
+    </div>
+
+</div>
+{% endblock %}
+
+
+{% block extra_scripts %}
+<script>
+const FILTER_AWAL   = 'semua';
+
+function dashboard() {
+    console.log('[DASHBOARD] dashboard() init');
+    return {
+        daftarPesanan    : [],
+        filterAktif      : FILTER_AWAL,
+        filterTabs       : [
+            { value: 'semua',    label: '📋 Semua'    },
+            { value: 'pending',  label: '⏳ Pending'  },
+            { value: 'diproses', label: '👨‍🍳 Diproses' },
+            { value: 'selesai',  label: '✅ Selesai'  },
+            { value: 'dibatal',  label: '❌ Batal'  },
+        ],
+        jumlahPending    : 0,
+        jumlahDiproses   : 0,
+        jumlahSelesai    : 0,
+        sedangMuat       : true,
+        sedangRefresh    : false,
+        tampilModal      : false,
+        detailPesanan    : {},
+        tampilToast      : false,
+        pesanToast       : '',
+        intervalPolling  : null,
+        jumlahSebelumnya : -1,
+
+        inisialisasi() {
+            this.muatPesanan();
+            this.intervalPolling = setInterval(() => {
+                this.muatPesanan(true);
+            }, 5000);
+        },
+
+        gantiFilter(nilai) {
+            this.filterAktif      = nilai;
+            this.sedangMuat       = true;
+            this.jumlahSebelumnya = -1;
+            this.muatPesanan();
+        },
+
+        muatPesanan(senyap = false) {
+            if (!senyap) this.sedangMuat = true;
+            this.sedangRefresh = true;
+
+            fetch(`/kasir/api/daftar-pesanan/?status=${this.filterAktif}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === 'ok') {
+                        const pendingBaru = data.jumlah_pending;
+
+                        if (this.jumlahSebelumnya >= 0
+                            && pendingBaru > this.jumlahSebelumnya) {
+                            const selisih = pendingBaru - this.jumlahSebelumnya;
+                            this.tampilkanToast(`🔔 ${selisih} pesanan baru masuk!`);
+                        }
+
+                        this.jumlahSebelumnya = pendingBaru;
+                        this.daftarPesanan    = data.daftar_pesanan;
+                        this.jumlahPending    = pendingBaru;
+                        this.jumlahDiproses   = data.jumlah_diproses;
+                        this.jumlahSelesai    = data.jumlah_selesai;
+                    }
+                })
+                .catch(err => console.log('Polling error:', err))
+                .finally(() => {
+                    this.sedangMuat    = false;
+                    this.sedangRefresh = false;
+                });
+        },
+
+        bukaDetail(nomorPesanan) {
+            fetch(`/kasir/detail-pesanan/${nomorPesanan}/`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === 'ok') {
+                        this.detailPesanan = data;
+                        this.tampilModal   = true;
+                    }
+                })
+                .catch(() => this.tampilkanToast('❌ Gagal memuat detail'));
+        },
+
+        updateStatus(nomorPesanan, statusBaru) {
+            const label = {
+                'diproses': 'sedang diproses',
+                'selesai' : 'selesai',
+                'dibatal' : 'dibatalkan',
+            };
+            fetch(`/kasir/update-status/${nomorPesanan}/`, {
+                method : 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken' : '{{ csrf_token }}',
+                },
+                body: JSON.stringify({ status: statusBaru })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'ok') {
+                    this.tampilkanToast(
+                        `✅ Pesanan ${nomorPesanan} ${label[statusBaru]}`
+                    );
+                    this.muatPesanan(true);
+                } else {
+                    this.tampilkanToast('❌ ' + data.pesan);
+                }
+            })
+            .catch(() => this.tampilkanToast('❌ Gagal update status'));
+        },
+
+        tampilkanToast(pesan) {
+            this.pesanToast  = pesan;
+            this.tampilToast = true;
+            setTimeout(() => { this.tampilToast = false }, 3000);
+        },
+    }
+}
+</script>
+{% endblock %}

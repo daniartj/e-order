@@ -1,0 +1,57 @@
+<!-- Search + Filter Bar -->
+<form method="GET" class="bg-white rounded-2xl shadow-soft p-4">
+    <div class="flex gap-2">
+        <!-- Search box -->
+        <div class="relative flex-1">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-muted text-sm">🔍</span>
+            <input
+                type="text"
+                name="q"
+                value="{{ kata }}"
+                placeholder="Cari menu..."
+                class="w-full bg-gray-50 rounded-xl pl-9 pr-4 py-2.5
+                       text-sm focus:outline-none focus:ring-2
+                       focus:ring-primary border border-gray-100"
+            />
+        </div>
+        <button type="submit"
+                class="bg-primary text-white px-4 py-2.5 rounded-xl
+                       text-sm font-semibold flex-shrink-0">
+            Cari
+        </button>
+    </div>
+
+    <!-- Filter Terlaris -->
+    <div class="flex gap-2 mt-3">
+        <span class="text-xs text-muted self-center">Urutkan:</span>
+        <a href="?{% if request.GET.tanggal %}tanggal={{ request.GET.tanggal }}&{% endif %}{% if request.GET.bulan %}bulan={{ request.GET.bulan }}&{% endif %}{% if request.GET.tahun %}tahun={{ request.GET.tahun }}&{% endif %}q={{ kata }}&urut=terjual"
+           class="px-3 py-1.5 rounded-xl text-xs font-semibold transition-all
+                  {% if urut == 'terjual' %}bg-primary text-white{% else %}bg-gray-100 text-primary{% endif %}">
+            🏆 Terlaris
+        </a>
+        <a href="?{% if request.GET.tanggal %}tanggal={{ request.GET.tanggal }}&{% endif %}{% if request.GET.bulan %}bulan={{ request.GET.bulan }}&{% endif %}{% if request.GET.tahun %}tahun={{ request.GET.tahun }}&{% endif %}q={{ kata }}&urut=omzet"
+           class="px-3 py-1.5 rounded-xl text-xs font-semibold transition-all
+                  {% if urut == 'omzet' %}bg-primary text-white{% else %}bg-gray-100 text-primary{% endif %}">
+            💰 Omzet Tertinggi
+        </a>
+        {% if kata %}
+        <a href="?urut={{ urut }}"
+           class="px-3 py-1.5 rounded-xl text-xs font-semibold
+                  bg-red-50 text-red-500">
+            ✕ Reset
+        </a>
+        {% endif %}
+    </div>
+
+    <!-- Hidden fields to preserve params -->
+    {% if request.GET.tanggal %}
+    <input type="hidden" name="tanggal" value="{{ request.GET.tanggal }}">
+    {% endif %}
+    {% if request.GET.bulan %}
+    <input type="hidden" name="bulan" value="{{ request.GET.bulan }}">
+    {% endif %}
+    {% if request.GET.tahun %}
+    <input type="hidden" name="tahun" value="{{ request.GET.tahun }}">
+    {% endif %}
+    <input type="hidden" name="urut" value="{{ urut }}">
+</form>

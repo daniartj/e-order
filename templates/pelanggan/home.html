@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block title %}E-Order — Selamat Datang{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex flex-col items-center
+            justify-center bg-primary px-6">
+
+    <!-- Logo animasi -->
+    <div
+        x-data="{ tampil: false }"
+        x-init="setTimeout(() => tampil = true, 100)"
+        class="text-center"
+    >
+        <div
+            x-show="tampil"
+            x-transition:enter="transition ease-out duration-700"
+            x-transition:enter-start="opacity-0 scale-75"
+            x-transition:enter-end="opacity-100 scale-100"
+        >
+            <!-- Icon -->
+            <div class="w-48 h-48 flex items-center justify-center mx-auto mb-0 ">
+                <img src="{% load static %}{% static 'img/logo.png' %}" alt="E-Order" class="w-40 h-40 object-contain" />
+            </div>
+
+            <!-- Nama -->
+            <h1 class="text-white text-4xl font-extrabold
+                       tracking-tight mb-1">
+                E-Order
+            </h1>
+            <p class="text-white text-opacity-60 text-sm
+                       tracking-widest uppercase mb-12">
+                Sistem Pemesanan Digital
+            </p>
+
+            <!-- Card instruksi -->
+            <div class="bg-white bg-opacity-10 rounded-3xl p-6
+                        backdrop-blur-sm max-w-xs mx-auto">
+                <p class="text-white font-semibold text-base mb-1">
+                    Cara Memesan
+                </p>
+                <p class="text-white text-opacity-70 text-sm
+                           leading-relaxed">
+                    Scan <span class="font-bold text-white">
+                    QR Code</span> di meja Anda untuk mulai
+                    melihat menu dan memesan.
+                </p>
+            </div>
+
+            <p class="text-white text-opacity-30 text-xs mt-8">
+                E-Order &copy; 2026 — Powered by Django
+            </p>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

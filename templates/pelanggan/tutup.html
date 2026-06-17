@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}E-Order — Sedang Tutup{% endblock %}
+{% load static %}
+{% block content %}
+<div class="min-h-screen bg-light flex items-center
+            justify-center px-4">
+    <div class="w-full max-w-sm">
+        <div class="bg-white rounded-3xl shadow-card p-8 text-center">
+
+            <div class="w-24 h-24 bg-yellow-100 rounded-full flex items-center
+                        justify-center mx-auto mb-6">
+                <span class="text-5xl">🕐</span>
+            </div>
+
+            <h1 class="text-2xl font-extrabold text-primary mb-3">
+                Sedang Tutup
+            </h1>
+
+            <p class="text-muted text-sm leading-relaxed mb-4">
+                Maaf, kafe sedang tutup saat ini.
+            </p>
+
+            <div class="bg-gray-50 rounded-2xl p-4">
+                <p class="text-xs text-muted mb-2">Jam Operasional</p>
+                <p class="text-lg font-extrabold text-primary">
+                    {{ jam_buka }} — {{ jam_tutup }} WIB
+                </p>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

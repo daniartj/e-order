@@ -1,0 +1,189 @@
+{% extends 'kasir/base_kasir.html' %}
+{% block title %}E-Order — Transaksi Hari Ini{% endblock %}
+{% block subtitle %}Laporan Transaksi — Hari Ini{% endblock %}
+
+{% block kasir_content %}
+<div class="px-4 py-4 space-y-4">
+
+    <!-- Breadcrumb -->
+    <div class="flex items-center gap-2 text-xs text-muted">
+        <span class="text-primary font-semibold">Laporan Transaksi</span>
+        <span class="text-muted"></span>
+        <span>{{ judul }}</span>
+    </div>
+    <!-- Tombol Export -->
+<div class="flex justify-end">
+    <a href="{% url 'kasir:export_transaksi' %}?status={{ filter_status }}"
+       class="flex items-center gap-2 bg-green-600 text-white
+              text-sm font-semibold px-4 py-2.5 rounded-xl
+              active:scale-95 transition-transform shadow-soft">
+        <span>📥</span>
+        <span>Export Excel</span>
+    </a>
+</div>
+
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-3 gap-3">
+        <div class="bg-white rounded-2xl shadow-soft p-4 text-center">
+            <p class="text-2xl font-extrabold text-primary">
+                {{ total_transaksi }}
+            </p>
+            <p class="text-xs text-muted mt-1">📋 Transaksi</p>
+        </div>
+        <div class="bg-white rounded-2xl shadow-soft p-4 text-center">
+            <p class="text-2xl font-extrabold text-green-500">
+                {{ total_selesai }}
+            </p>
+            <p class="text-xs text-muted mt-1">✅ Selesai</p>
+        </div>
+        <div class="bg-white rounded-2xl shadow-soft p-4 text-center">
+            <p class="text-lg font-extrabold text-secondary">
+                Rp {{ total_pendapatan|floatformat:0 }}
+            </p>
+            <p class="text-xs text-muted mt-1">💰 Pendapatan</p>
+        </div>
+    </div>
+
+    <!-- Chart Card -->
+    <div class="bg-white rounded-2xl shadow-soft p-4"
+         x-data="chartKasir()"
+         x-init="init()">
+        <div class="flex items-center justify-between mb-3">
+            <h3 class="text-sm font-bold text-primary">
+                📊 Transaksi per Jam
+            </h3>
+            <div class="flex bg-gray-100 rounded-xl p-0.5 gap-0.5">
+                <button @click="ganti('jumlah')"
+                    :class="tab==='jumlah'
+                        ? 'bg-white text-primary shadow-soft'
+                        : 'text-muted'"
+                    class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all">
+                    Jml Transaksi
+                </button>
+                <button @click="ganti('pendapatan')"
+                    :class="tab==='pendapatan'
+                        ? 'bg-white text-primary shadow-soft'
+                        : 'text-muted'"
+                    class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all">
+                    Pendapatan
+                </button>
+            </div>
+        </div>
+        <div style="position:relative;height:180px;">
+            <canvas id="kasirChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Daftar Transaksi -->
+    <div class="bg-white rounded-2xl shadow-soft overflow-hidden">
+        <div class="px-4 py-3 border-b border-gray-50">
+            <h3 class="text-sm font-bold text-primary">
+                🧾 Daftar Transaksi
+            </h3>
+        </div>
+        {% for p in pesanan %}
+        <div class="px-4 py-3 border-b border-gray-50 last:border-0">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-bold text-primary">
+                        {{ p.nomor_pesanan }}
+                    </p>
+                    <p class="text-xs text-muted">
+                        🪑 Meja {{ p.meja.nomor_meja }}
+                        · {{ p.waktu_pesan|time:"H:i" }} WIB
+                        · {{ p.get_metode_bayar_display }}
+                    </p>
+                    <p class="text-xs text-muted mt-0.5">
+                        {% for d in p.detail.all %}
+                            {{ d.jumlah }}x {{ d.nama_menu_snapshot }}
+                            {% if not forloop.last %}·{% endif %}
+                        {% endfor %}
+                    </p>
+                </div>
+                <div class="text-right flex-shrink-0">
+                    <p class="text-sm font-bold text-primary">
+                        {{ p.total_format }}
+                    </p>
+                    <span class="text-xs font-semibold px-2 py-0.5 rounded-full
+                        {% if p.status == 'selesai' %}bg-green-100 text-green-700
+                        {% elif p.status == 'diproses' %}bg-blue-100 text-blue-700
+                        {% elif p.status == 'pending' %}bg-yellow-100 text-yellow-700
+                        {% else %}bg-red-100 text-red-700{% endif %}">
+                        {{ p.get_status_display }}
+                    </span>
+                    <!-- ✅ Tombol Print -->
+                    <a href="{% url 'kasir:cetak_struk' p.nomor_pesanan %}"
+                target="_blank"
+                class="bg-gray-100 text-primary text-xs font-semibold
+                       px-2 py-1.5 rounded-lg active:scale-95
+                       transition-transform"
+            >
+                🖨️
+            </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="px-4 py-12 text-center text-muted">
+            <div class="text-4xl mb-2">📋</div>
+            <p class="text-sm">Belum ada transaksi hari ini</p>
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+const LABELS   = {{ labels|safe }};
+const VAL_JML  = {{ val_jml|safe }};
+const VAL_PEND = {{ val_pend|safe }};
+
+function chartKasir() {
+    return {
+        tab  : 'jumlah',
+        chart: null,
+        init() {
+            this.$nextTick(() => {
+                const ctx = document.getElementById('kasirChart');
+                if (!ctx) return;
+                this.chart = new Chart(ctx, {
+                    type: 'bar',
+                    data: this.getData(),
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: { grid: { display: false } },
+                            y: { beginAtZero: true, grid: { color: '#f3f4f6' } }
+                        }
+                    }
+                });
+            });
+        },
+        getData() {
+            return {
+                labels: LABELS,
+                datasets: [{
+                    data: this.tab === 'jumlah' ? VAL_JML : VAL_PEND,
+                    backgroundColor: 'rgba(28,28,30,0.08)',
+                    borderColor: '#1C1C1E',
+                    borderWidth: 2,
+                    borderRadius: 6,
+                }]
+            };
+        },
+        ganti(tab) {
+            this.tab = tab;
+            if (this.chart) {
+                this.chart.data.datasets[0].data =
+                    tab === 'jumlah' ? VAL_JML : VAL_PEND;
+                this.chart.update();
+            }
+        }
+    }
+}
+</script>
+{% endblock %}

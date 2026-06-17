@@ -1,0 +1,456 @@
+  {% extends 'kasir/base_kasir.html' %}
+{% block title %}E-Order — Pengaturan{% endblock %}
+{% block subtitle %}Pengaturan Sistem{% endblock %}
+
+{% block kasir_content %}
+<div class="px-4 py-4 space-y-4 max-w-2xl mx-auto">
+
+    <form method="POST"
+          action="{% url 'kasir:simpan_pengaturan' %}"
+          enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <!-- ======================== -->
+        <!-- INFO KAFE                -->
+        <!-- ======================== -->
+        <div class="bg-white rounded-2xl shadow-soft overflow-hidden mb-4">
+            <div class="px-5 py-4 border-b border-gray-50 bg-gray-50">
+                <h3 class="font-bold text-primary">☕ Info Kafe</h3>
+                <p class="text-xs text-muted mt-0.5">
+                    Tampil di struk dan halaman pelanggan
+                </p>
+            </div>
+            <div class="p-5 space-y-4">
+
+                <div>
+                    <label class="block text-xs font-semibold
+                                  text-primary mb-1.5">
+                        Nama Kafe
+                    </label>
+                    <input type="text" name="nama_kafe"
+                           value="{{ setting.nama_kafe }}"
+                           class="w-full bg-gray-50 rounded-xl px-4 py-3
+                                  text-sm focus:outline-none focus:ring-2
+                                  focus:ring-primary border border-gray-100"/>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold
+                                  text-primary mb-1.5">
+                        Alamat
+                    </label>
+                    <textarea name="alamat_kafe" rows="2"
+                              class="w-full bg-gray-50 rounded-xl px-4 py-3
+                                     text-sm focus:outline-none focus:ring-2
+                                     focus:ring-primary border border-gray-100
+                                     resize-none">{{ setting.alamat_kafe }}</textarea>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold
+                                      text-primary mb-1.5">
+                            No. Telepon
+                        </label>
+                        <input type="text" name="telp_kafe"
+                               value="{{ setting.telp_kafe }}"
+                               class="w-full bg-gray-50 rounded-xl px-4 py-3
+                                      text-sm focus:outline-none focus:ring-2
+                                      focus:ring-primary border border-gray-100"/>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold
+                                      text-primary mb-1.5">
+                            Footer Struk
+                        </label>
+                        <input type="text" name="footer_struk"
+                               value="{{ setting.footer_struk }}"
+                               class="w-full bg-gray-50 rounded-xl px-4 py-3
+                                      text-sm focus:outline-none focus:ring-2
+                                      focus:ring-primary border border-gray-100"/>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ======================== -->
+        <!-- JAM OPERASIONAL          -->
+        <!-- ======================== -->
+        <div class="bg-white rounded-2xl shadow-soft overflow-hidden mb-4"
+             x-data="{ aktif: {{ setting.cek_jam_operasional|yesno:'true,false' }} }">
+            <div class="px-5 py-4 border-b border-gray-50 bg-gray-50">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="font-bold text-primary">
+                            🕐 Jam Operasional
+                        </h3>
+                        <p class="text-xs text-muted mt-0.5">
+                            Blokir akses di luar jam buka
+                        </p>
+                    </div>
+                    <div @click="aktif = !aktif"
+                         :class="aktif ? 'bg-primary' : 'bg-gray-200'"
+                         class="w-12 h-6 rounded-full cursor-pointer
+                                transition-colors relative">
+                        <div :class="aktif ? 'translate-x-6' : 'translate-x-1'"
+                             class="w-4 h-4 bg-white rounded-full absolute
+                                    top-1 transition-transform shadow-sm">
+                        </div>
+                    </div>
+                </div>
+                <input type="hidden" name="cek_jam_operasional"
+                       :value="aktif ? 'on' : ''"/>
+            </div>
+
+            <div x-show="aktif" class="p-5">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold
+                                      text-primary mb-1.5">
+                            Jam Buka
+                        </label>
+                        <input type="time" name="jam_buka"
+                               value="{{ setting.jam_buka|time:'H:i' }}"
+                               class="w-full bg-gray-50 rounded-xl px-4 py-3
+                                      text-sm focus:outline-none focus:ring-2
+                                      focus:ring-primary border border-gray-100"/>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold
+                                      text-primary mb-1.5">
+                            Jam Tutup
+                        </label>
+                        <input type="time" name="jam_tutup"
+                               value="{{ setting.jam_tutup|time:'H:i' }}"
+                               class="w-full bg-gray-50 rounded-xl px-4 py-3
+                                      text-sm focus:outline-none focus:ring-2
+                                      focus:ring-primary border border-gray-100"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ======================== -->
+        <!-- GAMBAR QRIS              -->
+        <!-- ======================== -->
+        <div class="bg-white rounded-2xl shadow-soft overflow-hidden mb-4">
+            <div class="px-5 py-4 border-b border-gray-50 bg-gray-50">
+                <h3 class="font-bold text-primary">📱 Gambar QRIS</h3>
+                <p class="text-xs text-muted mt-0.5">
+                    Tampil di halaman checkout pelanggan
+                </p>
+            </div>
+            <div class="p-5">
+                {% if setting.gambar_qris %}
+                <div class="mb-3 flex items-center gap-4">
+                    <img src="{{ setting.gambar_qris.url }}"
+                         alt="QRIS"
+                         class="w-32 h-32 object-contain rounded-xl
+                                border border-gray-200"/>
+                    <div>
+                        <p class="text-sm font-semibold text-primary">
+                            QRIS terpasang
+                        </p>
+                        <p class="text-xs text-muted mt-1">
+                            Upload baru untuk mengganti
+                        </p>
+                        <label class="flex items-center gap-2 mt-2
+                                      cursor-pointer">
+                            <input type="checkbox" name="hapus_qris"
+                                   value="1"
+                                   class="rounded"/>
+                            <span class="text-xs text-red-500 font-semibold">
+                                Hapus QRIS
+                            </span>
+                        </label>
+                    </div>
+                </div>
+                {% endif %}
+                <input type="file" name="gambar_qris"
+                       accept="image/*"
+                       class="w-full bg-gray-50 rounded-xl px-4 py-3
+                              text-sm border border-gray-100
+                              file:mr-3 file:py-1 file:px-3
+                              file:rounded-lg file:border-0
+                              file:bg-primary file:text-white
+                              file:text-xs file:font-semibold"/>
+            </div>
+        </div>
+
+        <!-- ======================== -->
+        <!-- NOTIFIKASI SUARA         -->
+        <!-- ======================== -->
+        {% load static %}
+        <div class="bg-white rounded-2xl shadow-soft overflow-hidden mb-4"
+             x-data="{
+                 pilihan : '{{ setting.notif_suara_pilihan }}',
+        volume  : Number(String('{{ setting.notif_volume|default_if_none:0.8|floatformat:1 }}').replace(',', '.')),
+
+                 audio   : null,
+                 mainkan(n) {
+                     if (this.audio) {
+                         this.audio.pause();
+                         this.audio.currentTime = 0;
+                     }
+
+                     const urls = {
+                         '1': '{% static "sounds/notif1.wav" %}',
+                         '2': '{% static "sounds/notif2.wav" %}',
+                         '3': '{% static "sounds/notif3.wav" %}',
+                     };
+
+                     const url = urls[n];
+                     console.log('[NOTIF PREVIEW] pilih:', n, 'url:', url);
+
+                     this.audio = new Audio(url);
+
+                     const volRaw = String(this.volume);
+                     const vol = parseFloat(volRaw.replace(',', '.'));
+                     this.audio.volume = Number.isFinite(vol) ? vol : 0.8;
+
+                     try {
+                         this.audio.load();
+                     } catch(e) {}
+
+                     this.audio.play()
+                         .then(() => console.log('[NOTIF PREVIEW] playing'))
+                         .catch(e => console.log('[NOTIF PREVIEW] play error:', e));
+                 }
+             }">
+            <div class="px-5 py-4 border-b border-gray-50 bg-gray-50">
+                <h3 class="font-bold text-primary">🔔 Notifikasi Suara</h3>
+                <p class="text-xs text-muted mt-0.5">
+                    Bunyi saat pesanan baru masuk di dashboard
+                </p>
+            </div>
+            <div class="p-5 space-y-5">
+
+                <!-- Pilihan Suara -->
+                <div>
+                    <label class="block text-xs font-semibold
+                                  text-primary mb-3">
+                        Pilih Suara
+                    </label>
+                    <div class="space-y-2">
+                        {% for i in "123" %}
+                        <label class="flex items-center justify-between
+                                      bg-gray-50 rounded-xl px-4 py-3
+                                      cursor-pointer border-2 transition-all"
+                               :class="pilihan === '{{ i }}'
+                                   ? 'border-primary bg-primary/5'
+                                   : 'border-transparent bg-transparent'"
+                        >
+                            <div class="flex items-center gap-3">
+                                <input
+                                    type="radio"
+                                    name="notif_suara_pilihan"
+                                    value="{{ i }}"
+                                    x-model="pilihan"
+                                    class="accent-primary"
+                                />
+                                <div>
+                                    <p class="text-sm font-semibold text-primary">
+                                        Suara {{ i }}
+                                    </p>
+                                    <p class="text-xs text-muted">
+                                        notif{{ i }}.wav
+                                    </p>
+                                </div>
+                            </div>
+                            <button
+                                type="button"
+                                @click="mainkan('{{ i }}')"
+                                class="bg-primary text-white text-xs font-semibold
+                                       px-3 py-1.5 rounded-lg active:scale-95
+                                       transition-transform flex items-center gap-1"
+                            >
+                                <span>▶</span>
+                                <span>Preview</span>
+                            </button>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Volume -->
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <label class="text-xs font-semibold text-primary">
+                            Volume
+                        </label>
+                        <span class="text-xs font-bold text-primary"
+                              x-text="Math.round(volume * 100) + '%'">
+                        </span>
+                    </div>
+                    <input
+                        type="range"
+                        name="notif_volume"
+                        min="0"
+                        max="1"
+                        step="0.1"
+                        x-model="volume"
+                        @change="if(this.audio){ this.audio.volume = this.volume }"
+                        class="w-full accent-primary"
+                    />
+                    <div class="flex justify-between text-xs text-muted mt-1">
+                        <span>0%</span>
+                        <span>50%</span>
+                        <span>100%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ======================== -->
+        <!-- SESSION                  -->
+        <!-- ======================== -->
+        <div class="bg-white rounded-2xl shadow-soft overflow-hidden mb-4">
+            <div class="px-5 py-4 border-b border-gray-50 bg-gray-50">
+                <h3 class="font-bold text-primary">⏱️ Session Pelanggan</h3>
+                <p class="text-xs text-muted mt-0.5">
+                    Durasi akses pelanggan setelah scan QR
+                </p>
+            </div>
+            <div class="p-5">
+                <label class="block text-xs font-semibold
+                              text-primary mb-1.5">
+                    Durasi Session (menit)
+                </label>
+                <input type="number" name="durasi_session"
+                       min="1" max="120"
+                       value="{{ setting.durasi_session }}"
+                       class="w-full bg-gray-50 rounded-xl px-4 py-3
+                              text-sm focus:outline-none focus:ring-2
+                              focus:ring-primary border border-gray-100"/>
+                <p class="text-xs text-muted mt-1">
+                    Rekomendasi: 10–30 menit
+                </p>
+            </div>
+        </div>
+
+        <!-- ======================== -->
+        <!-- PEMBATASAN WIFI          -->
+        <!-- ======================== -->
+        <div class="bg-white rounded-2xl shadow-soft overflow-hidden mb-4"
+             x-data="{ aktif: {{ setting.wifi_aktif|yesno:'true,false' }} }">
+            <div class="px-5 py-4 border-b border-gray-50 bg-gray-50">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="font-bold text-primary">
+                            📶 Pembatasan WiFi
+                        </h3>
+                        <p class="text-xs text-muted mt-0.5">
+                            Hanya izinkan akses dari jaringan WiFi kafe
+                        </p>
+                    </div>
+                    <div @click="aktif = !aktif"
+                         :class="aktif ? 'bg-primary' : 'bg-gray-200'"
+                         class="w-12 h-6 rounded-full cursor-pointer
+                                transition-colors relative">
+                        <div :class="aktif ? 'translate-x-6' : 'translate-x-1'"
+                             class="w-4 h-4 bg-white rounded-full absolute
+                                    top-1 transition-transform shadow-sm">
+                        </div>
+                    </div>
+                </div>
+                <input type="hidden" name="wifi_aktif"
+                       :value="aktif ? 'on' : ''"/>
+            </div>
+
+            <div x-show="aktif" class="p-5 space-y-4">
+
+                <div class="bg-blue-50 rounded-xl p-3 flex items-center
+                            justify-between"
+                     x-data="{ ip: 'Memuat...' }"
+                     x-init="fetch('/kasir/pengaturan/ip-saya/')
+                                 .then(r => r.json())
+                                 .then(d => ip = d.ip)">
+                    <div>
+                        <p class="text-xs font-semibold text-blue-700">
+                            IP Anda Saat Ini
+                        </p>
+                        <p class="text-sm font-bold text-blue-900 font-mono"
+                           x-text="ip"></p>
+                    </div>
+                    <button
+                        type="button"
+                        @click="
+                            const area = document.getElementById('ip-range');
+                            const val  = area.value.trim();
+                            const parts = ip.split('.');
+                            const network = parts.slice(0,3).join('.') + '.0/24';
+                            area.value = val
+                                ? val + '\n' + network
+                                : network;
+                        "
+                        class="bg-blue-600 text-white text-xs font-semibold
+                               px-3 py-1.5 rounded-lg active:scale-95
+                               transition-transform"
+                    >
+                        + Tambah ke Range
+                    </button>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold
+                                  text-primary mb-1.5">
+                        Range IP yang Diizinkan
+                    </label>
+                    <textarea
+                        id="ip-range"
+                        name="wifi_ip_range"
+                        rows="5"
+                        placeholder="Contoh:&#10;192.168.1.0/24&#10;192.168.1.100&#10;10.0.0.0/8"
+                        class="w-full bg-gray-50 rounded-xl px-4 py-3
+                               text-sm font-mono focus:outline-none
+                               focus:ring-2 focus:ring-primary
+                               border border-gray-100 resize-none"
+                    >{{ setting.wifi_ip_range }}</textarea>
+                    <p class="text-xs text-muted mt-1">
+                        Satu IP atau range CIDR per baris.
+                        Contoh: <code class="bg-gray-100 px-1 rounded">
+                        192.168.1.0/24</code>
+                    </p>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold
+                                  text-primary mb-1.5">
+                        Pesan Error
+                    </label>
+                    <input type="text" name="pesan_wifi"
+                           value="{{ setting.pesan_wifi }}"
+                           class="w-full bg-gray-50 rounded-xl px-4 py-3
+                                  text-sm focus:outline-none focus:ring-2
+                                  focus:ring-primary border border-gray-100"/>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold
+                                  text-primary mb-1.5">
+                        Password WiFi
+                    </label>
+                    <input type="text" name="wifi_password"
+                           value="{{ setting.wifi_password }}"
+                           class="w-full bg-gray-50 rounded-xl px-4 py-3
+                                  text-sm focus:outline-none focus:ring-2
+                                  focus:ring-primary border border-gray-100"
+                           placeholder="Isi password WiFi"/>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tombol Simpan -->
+        <div class="pb-6">
+            <button type="submit"
+                    class="w-full bg-primary text-white font-bold
+                           py-4 rounded-2xl active:scale-95
+                           transition-transform shadow-card">
+                💾 Simpan Pengaturan
+            </button>
+        </div>
+
+    </form>
+</div>
+{% endblock %}

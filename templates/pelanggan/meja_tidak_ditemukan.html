@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block title %}E-Order — Meja Tidak Ditemukan{% endblock %}
+{% load static %}
+{% block content %}
+<div class="min-h-screen bg-light flex items-center
+            justify-center px-4">
+    <div class="w-full max-w-sm">
+        <div class="bg-white rounded-3xl shadow-card p-8 text-center">
+
+            <div class="w-24 h-24 bg-red-100 rounded-full
+                        flex items-center justify-center
+                        mx-auto mb-6">
+                <span class="text-5xl"></span>
+            </div>
+
+            <h1 class="text-2xl font-extrabold text-primary mb-3">
+                Meja Tidak Ditemukan
+            </h1>
+
+            <p class="text-muted text-sm leading-relaxed">
+                Meja <span class="font-bold text-primary">
+                {{ nomor_meja }}</span> tidak tersedia.
+                Pastikan Anda scan QR Code yang benar.
+            </p>
+
+            <div class="bg-gray-50 rounded-2xl p-6 mt-6">
+                <div class="text-5xl mb-2">📱</div>
+                <p class="text-xs text-muted">
+                    Scan ulang QR Code di meja Anda
+                </p>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

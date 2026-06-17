@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Struk — {{ pesanan.nomor_pesanan }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @media print {
+            .no-print { display: none !important; }
+            body { font-family: 'Courier New', monospace; font-size: 12px; }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+
+<!-- ======================== -->
+<!-- INFO PANEL (no-print)    -->
+<!-- ======================== -->
+<div class="no-print max-w-sm mx-auto mt-6 mb-4 space-y-3 px-4">
+
+    <!-- Judul -->
+    <div class="bg-white rounded-2xl shadow p-4 text-center">
+        <h1 class="text-lg font-extrabold text-gray-900">🖨️ Print Struk</h1>
+        <p class="text-xs text-gray-500 mt-1">{{ pesanan.nomor_pesanan }}</p>
+    </div>
+
+    <!-- ======================== -->
+    <!-- INFO CHROME FLAG         -->
+    <!-- ======================== -->
+    <div class="bg-blue-50 border border-blue-200 rounded-2xl p-4"
+         x-data="{ tampil: true }" x-show="tampil">
+        <div class="flex items-start justify-between gap-2">
+            <div class="flex-1">
+                <p class="text-xs font-bold text-blue-800 mb-2">
+                    ℹ️ Aktifkan Web Bluetooth dulu (sekali saja)
+                </p>
+                <ol class="text-xs text-blue-700 space-y-1.5">
+                    <li>
+                        <span class="font-semibold">1.</span>
+                        Copy link ini:
+                        <div class="flex items-center gap-2 mt-1">
+                            <code class="bg-blue-100 px-2 py-1 rounded text-xs
+                                         font-mono break-all flex-1">
+                                chrome://flags/#enable-web-bluetooth-new-permissions-backend
+                            </code>
+                            <button
+                                onclick="
+                                    navigator.clipboard.writeText(
+                                        'chrome://flags/#enable-web-bluetooth-new-permissions-backend'
+                                    );
+                                    this.textContent='✅';
+                                    setTimeout(()=>this.textContent='Copy',2000);
+                                "
+                                class="bg-blue-600 text-white text-xs px-2 py-1
+                                       rounded-lg font-semibold flex-shrink-0"
+                            >Copy</button>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="font-semibold">2.</span>
+                        Paste di address bar Chrome → Enter
+                    </li>
+                    <li>
+                        <span class="font-semibold">3.</span>
+                        Cari <b>"Use the new permissions backend for Web Bluetooth"</b>
+                        → set <b>Enabled</b>
+                    </li>
+                    <li>
+                        <span class="font-semibold">4.</span>
+                        Klik <b>Relaunch</b> → kembali ke halaman ini
+                    </li>
+                </ol>
+            </div>
+            <button @click="tampil = false"
+                    class="text-blue-400 text-lg flex-shrink-0">✕</button>
+        </div>
+    </div>
+
+    <!-- ======================== -->
+    <!-- TOMBOL AKSI              -->
+    <!-- ======================== -->
+    <div class="bg-white rounded-2xl shadow p-4 space-y-3"
+         x-data="printerManager()">
+
+        <!-- Status koneksi -->
+        <div class="flex items-center gap-2 px-3 py-2 rounded-xl"
+             :class="{
+                 'bg-green-50' : status === 'terhubung',
+                 'bg-yellow-50': status === 'menghubungkan',
+                 'bg-red-50'   : status === 'error',
+                 'bg-gray-50'  : status === 'belum',
+             }">
+            <div class="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                 :class="{
+                     'bg-green-500 animate-pulse': status === 'terhubung',
+                     'bg-yellow-500 animate-pulse': status === 'menghubungkan',
+                     'bg-red-500'  : status === 'error',
+                     'bg-gray-400' : status === 'belum',
+                 }"></div>
+            <p class="text-xs font-semibold"
+               :class="{
+                   'text-green-700' : status === 'terhubung',
+                   'text-yellow-700': status === 'menghubungkan',
+                   'text-red-700'   : status === 'error',
+                   'text-gray-600'  : status === 'belum',
+               }"
+               x-text="pesanStatus"></p>
+        </div>
+
+        <!-- Tombol Hubungkan -->
+        <button
+            x-show="status !== 'terhubung'"
+            @click="hubungkan()"
+            :disabled="status === 'menghubungkan'"
+            class="w-full bg-gray-900 text-white font-bold py-3.5
+                   rounded-xl active:scale-95 transition-transform
+                   disabled:opacity-50 disabled:cursor-not-allowed
+                   flex items-center justify-center gap-2"
+        >
+            <span>📶</span>
+            <span x-text="status === 'menghubungkan'
+                ? 'Menghubungkan...'
+                : 'Hubungkan Printer Bluetooth'"></span>
+        </button>
+
+        <!-- Tombol Print -->
+        <button
+            x-show="status === 'terhubung'"
+            @click="cetakStruk()"
+            :disabled="sedangCetak"
+            class="w-full bg-gray-900 text-white font-bold py-3.5
+                   rounded-xl active:scale-95 transition-transform
+                   disabled:opacity-50
+                   flex items-center justify-center gap-2"
+        >
+            <span>🖨️</span>
+            <span x-text="sedangCetak ? 'Mencetak...' : 'Cetak Struk'"></span>
+        </button>
+
+        <!-- Tombol Putuskan -->
+        <button
+            x-show="status === 'terhubung'"
+            @click="putuskan()"
+            class="w-full bg-gray-100 text-gray-600 text-sm font-semibold
+                   py-2.5 rounded-xl active:scale-95 transition-transform"
+        >
+            Putuskan Printer
+        </button>
+
+        <!-- Tombol Print Browser (fallback) -->
+        <button
+            onclick="window.print()"
+            class="w-full bg-gray-100 text-gray-600 text-sm font-semibold
+                   py-2.5 rounded-xl active:scale-95 transition-transform"
+        >
+            🖨️ Print via Browser (Alternatif)
+        </button>
+
+        <!-- Tombol Tutup -->
+        <button
+            onclick="window.close()"
+            class="w-full bg-gray-100 text-gray-500 text-sm
+                   py-2 rounded-xl"
+        >
+            ✕ Tutup
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- ======================== -->
+<!-- PREVIEW STRUK            -->
+<!-- ======================== -->
+<div class="max-w-xs mx-auto bg-white rounded-2xl shadow
+            overflow-hidden mb-8 no-print">
+    <div class="bg-gray-50 px-4 py-2 border-b">
+        <p class="text-xs text-gray-500 text-center font-semibold">
+            PREVIEW STRUK
+        </p>
+    </div>
+    <div class="p-4 font-mono text-xs" id="preview-struk">
+        {% include 'kasir/_struk_content.html' %}
+    </div>
+</div>
+
+<!-- Struk untuk print browser -->
+<div class="struk-print hidden print:block font-mono text-xs p-2"
+     style="width:80mm;">
+    {% include 'kasir/_struk_content.html' %}
+</div>
+
+
+<!-- Alpine.js -->
+<script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+<script>
+// ======================================================
+// DATA STRUK dari Django
+// ======================================================
+const STRUK = {
+    namaKafe   : '{{ nama_kafe|escapejs }}',
+    alamat     : '{{ alamat_kafe|escapejs }}',
+    telp       : '{{ telp_kafe|escapejs }}',
+    footer     : '{{ footer_kafe|escapejs }}',
+    noPesanan  : '{{ pesanan.nomor_pesanan|escapejs }}',
+    noMeja     : '{{ pesanan.meja.nomor_meja|escapejs }}',
+    namaMeja   : '{{ pesanan.meja.nama_meja|escapejs }}',
+    tanggal    : '{{ pesanan.waktu_pesan|date:"d/m/Y" }}',
+    jam        : '{{ pesanan.waktu_pesan|time:"H:i" }}',
+    kasir      : '{{ request.user.username|escapejs }}',
+    metodeBayar: '{{ pesanan.get_metode_bayar_display|escapejs }}',
+    total      : {{ pesanan.total_harga }},
+    catatan    : '{{ pesanan.catatan|escapejs }}',
+    items      : [
+        {% for item in pesanan.detail.all %}
+        {
+            nama    : '{{ item.nama_menu_snapshot|escapejs }}',
+            jumlah  : {{ item.jumlah }},
+            harga   : {{ item.harga_snapshot }},
+            subtotal: {{ item.subtotal }},
+        },
+        {% endfor %}
+    ],
+};
+
+
+// ======================================================
+// ESC/POS HELPER
+// ======================================================
+const ESC  = 0x1B;
+const GS   = 0x1D;
+const LF   = 0x0A;
+
+function escPos() {
+
+    const buf = [];
+
+    const push = (...bytes) => bytes.forEach(b => buf.push(b));
+    const text = (str) => {
+        for (let i = 0; i < str.length; i++) {
+            const c = str.charCodeAt(i);
+            buf.push(c < 128 ? c : 63); // '?' untuk non-ASCII
+        }
+    };
+    const line = (str = '') => { text(str); push(LF); };
+
+    return {
+        // Init printer
+        init()          { push(ESC, 0x40); return this; },
+
+        // Align
+        left()          { push(ESC, 0x61, 0); return this; },
+        center()        { push(ESC, 0x61, 1); return this; },
+        right()         { push(ESC, 0x61, 2); return this; },
+
+        // Style
+        bold(on=true)   { push(ESC, 0x45, on?1:0); return this; },
+        doubleHeight(on=true) {
+            push(ESC, 0x21, on ? 0x10 : 0x00);
+            return this;
+        },
+
+        // Cut
+        cut()           { push(GS, 0x56, 0x41, 3); return this; },
+
+        // Feed
+        feed(n=1)       { for(let i=0;i<n;i++) push(LF); return this; },
+
+        // Line
+        line(str='')    { line(str); return this; },
+
+        // Divider
+        divider(char='-', len=32) {
+            line(char.repeat(len));
+            return this;
+        },
+
+        // Text + newline
+        println(str)    { line(str); return this; },
+
+        // Format item: nama kiri, harga kanan
+        itemLine(nama, nilai, lebar=32) {
+            const namaStr  = nama.substring(0, lebar - nilai.length - 1);
+            const spasi    = lebar - namaStr.length - nilai.length;
+            line(namaStr + ' '.repeat(Math.max(1, spasi)) + nilai);
+            return this;
+        },
+
+        // Ambil bytes
+        bytes() { return new Uint8Array(buf); }
+    };
+}
+
+
+function formatRp(angka) {
+    return 'Rp ' + angka.toLocaleString('id-ID');
+}
+
+function padKiri(str, len) {
+    return String(str).padEnd(len);
+}
+
+function padKanan(str, len) {
+    return String(str).padStart(len);
+}
+
+
+// ======================================================
+// BUAT DATA STRUK ESC/POS
+// ======================================================
+function buatDataStruk() {
+    const p   = STRUK;
+    const cmd = escPos();
+    const W   = 32; // lebar karakter per baris (58mm)
+
+    cmd.init();
+
+    // Header
+    cmd.center().bold(true).doubleHeight(true);
+    cmd.println(p.namaKafe);
+    cmd.bold(false).doubleHeight(false);
+    if (p.alamat) cmd.println(p.alamat);
+    if (p.telp)   cmd.println('Telp: ' + p.telp);
+    cmd.feed();
+
+    // Info pesanan
+    cmd.left();
+    cmd.divider('=', W);
+    cmd.itemLine('No Pesanan', p.noPesanan, W);
+    cmd.itemLine('Meja', p.noMeja + ' ' + p.namaMeja, W);
+    cmd.itemLine('Tanggal', p.tanggal, W);
+    cmd.itemLine('Jam', p.jam + ' WIB', W);
+    cmd.itemLine('Kasir', p.kasir, W);
+    cmd.itemLine('Bayar', p.metodeBayar, W);
+    cmd.divider('=', W);
+
+    // Items
+    p.items.forEach(item => {
+        cmd.bold(true).println(item.nama).bold(false);
+        const qtyHarga = `${item.jumlah}x ${formatRp(item.harga)}`;
+        cmd.itemLine(qtyHarga, formatRp(item.subtotal), W);
+    });
+
+    cmd.divider('-', W);
+
+    // Total
+    cmd.bold(true);
+    cmd.itemLine('TOTAL', formatRp(p.total), W);
+    cmd.bold(false);
+
+    // Catatan
+    if (p.catatan) {
+        cmd.divider('-', W);
+        cmd.println('Catatan:');
+        cmd.println(p.catatan);
+    }
+
+    cmd.divider('=', W);
+
+    // Footer
+    cmd.center();
+    cmd.println(p.footer);
+    cmd.println('');
+    cmd.println('*** ' + p.noPesanan + ' ***');
+    cmd.feed(3);
+    cmd.cut();
+
+    return cmd.bytes();
+}
+
+
+// ======================================================
+// ALPINE — PRINTER MANAGER
+// ======================================================
+function printerManager() {
+    return {
+        status      : 'belum',
+        pesanStatus : 'Belum terhubung ke printer',
+        sedangCetak : false,
+        device      : null,
+        server      : null,
+        characteristic: null,
+
+        // UUID service printer thermal Bluetooth
+        SERVICE_UUIDS: [
+            '000018f0-0000-1000-8000-00805f9b34fb', // ESC/POS standar
+            '00001101-0000-1000-8000-00805f9b34fb', // Serial Port
+            'e7810a71-73ae-499d-8c15-faa9aef0c3f2', // Custom
+            '49535343-fe7d-4ae5-8fa9-9fafd205e455', // Microchip BM70
+        ],
+
+        CHAR_UUIDS: [
+            '00002af1-0000-1000-8000-00805f9b34fb',
+            '00001101-0000-1000-8000-00805f9b34fb',
+            'bef8d6c9-9c21-4c9e-b632-bd58c1009f9f',
+            '49535343-1e4d-4bd9-ba61-23c647249616',
+        ],
+
+        async hubungkan() {
+            if (!navigator.bluetooth) {
+                this.setStatus('error',
+                    '❌ Browser tidak support Web Bluetooth. Pakai Chrome/Edge.');
+                return;
+            }
+
+            this.setStatus('menghubungkan', 'Mencari printer...');
+
+            try {
+                // Request device
+                this.device = await navigator.bluetooth.requestDevice({
+                    acceptAllDevices: true,
+                    optionalServices: this.SERVICE_UUIDS,
+                });
+
+                this.setStatus('menghubungkan',
+                    `Menghubungkan ke ${this.device.name || 'Printer'}...`);
+
+                // Connect GATT
+                this.server = await this.device.gatt.connect();
+
+                // Coba semua service UUID
+                let service = null;
+                for (const uuid of this.SERVICE_UUIDS) {
+                    try {
+                        service = await this.server.getPrimaryService(uuid);
+                        console.log('[BT] Service found:', uuid);
+                        break;
+                    } catch(e) { /* coba berikutnya */ }
+                }
+
+                if (!service) {
+                    // Coba ambil semua service
+                    const services = await this.server.getPrimaryServices();
+                    if (services.length > 0) {
+                        service = services[0];
+                        console.log('[BT] Using first service:', service.uuid);
+                    } else {
+                        throw new Error('Tidak ada service yang ditemukan');
+                    }
+                }
+
+                // Coba semua characteristic UUID
+                this.characteristic = null;
+                for (const uuid of this.CHAR_UUIDS) {
+                    try {
+                        this.characteristic = await service.getCharacteristic(uuid);
+                        console.log('[BT] Characteristic found:', uuid);
+                        break;
+                    } catch(e) { /* coba berikutnya */ }
+                }
+
+                if (!this.characteristic) {
+                    // Ambil semua characteristic yang bisa write
+                    const chars = await service.getCharacteristics();
+                    for (const c of chars) {
+                        const props = c.properties;
+                        if (props.write || props.writeWithoutResponse) {
+                            this.characteristic = c;
+                            console.log('[BT] Using characteristic:', c.uuid);
+                            break;
+                        }
+                    }
+                }
+
+                if (!this.characteristic) {
+                    throw new Error('Tidak ada characteristic yang bisa dipakai');
+                }
+
+                // Handle disconnect
+                this.device.addEventListener('gattserverdisconnected', () => {
+                    this.setStatus('belum', 'Printer terputus');
+                    this.characteristic = null;
+                    this.server = null;
+                });
+
+                this.setStatus('terhubung',
+                    `✅ Terhubung ke ${this.device.name || 'Printer'}`);
+
+            } catch(err) {
+                console.error('[BT] Error:', err);
+                if (err.name === 'NotFoundError') {
+                    this.setStatus('belum', 'Pencarian dibatalkan');
+                } else {
+                    this.setStatus('error', '❌ ' + err.message);
+                }
+            }
+        },
+
+        async cetakStruk() {
+            if (!this.characteristic) {
+                this.setStatus('error', '❌ Printer belum terhubung');
+                return;
+            }
+
+            this.sedangCetak = true;
+
+            try {
+                const data  = buatDataStruk();
+                const chunk = 100; // kirim per 100 bytes
+
+                for (let i = 0; i < data.length; i += chunk) {
+                    const bagian = data.slice(i, i + chunk);
+
+                    if (this.characteristic.properties.writeWithoutResponse) {
+                        await this.characteristic.writeValueWithoutResponse(bagian);
+                    } else {
+                        await this.characteristic.writeValue(bagian);
+                    }
+
+                    // Jeda antar chunk
+                    await new Promise(r => setTimeout(r, 50));
+                }
+
+                this.setStatus('terhubung', '✅ Struk berhasil dicetak!');
+                setTimeout(() => {
+                    this.setStatus('terhubung',
+                        `✅ Terhubung ke ${this.device?.name || 'Printer'}`);
+                }, 3000);
+
+            } catch(err) {
+                console.error('[BT] Print error:', err);
+                this.setStatus('error', '❌ Gagal cetak: ' + err.message);
+            } finally {
+                this.sedangCetak = false;
+            }
+        },
+
+        async putuskan() {
+            if (this.device && this.device.gatt.connected) {
+                this.device.gatt.disconnect();
+            }
+            this.characteristic = null;
+            this.server         = null;
+            this.device         = null;
+            this.setStatus('belum', 'Printer diputuskan');
+        },
+
+        setStatus(status, pesan) {
+            this.status      = status;
+            this.pesanStatus = pesan;
+        },
+    }
+}
+</script>
+
+</body>
+</html>

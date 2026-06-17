@@ -1,0 +1,52 @@
+<!-- Header -->
+<div class="text-center mb-2">
+    <p class="font-bold text-base">{{ nama_kafe }}</p>
+    {% if alamat_kafe %}<p>{{ alamat_kafe }}</p>{% endif %}
+    {% if telp_kafe %}<p>Telp: {{ telp_kafe }}</p>{% endif %}
+</div>
+
+<p class="border-t border-dashed border-gray-400 my-1"></p>
+
+<!-- Info -->
+<table class="w-full text-xs">
+    <tr><td>No Pesanan</td><td class="text-right">{{ pesanan.nomor_pesanan }}</td></tr>
+    <tr><td>Meja</td><td class="text-right">{{ pesanan.meja.nomor_meja }} — {{ pesanan.meja.nama_meja }}</td></tr>
+    <tr><td>Tanggal</td><td class="text-right">{{ pesanan.waktu_pesan|date:"d/m/Y" }}</td></tr>
+    <tr><td>Jam</td><td class="text-right">{{ pesanan.waktu_pesan|time:"H:i" }} WIB</td></tr>
+    <tr><td>Kasir</td><td class="text-right">{{ request.user.username }}</td></tr>
+    <tr><td>Bayar</td><td class="text-right">{{ pesanan.get_metode_bayar_display }}</td></tr>
+</table>
+
+<p class="border-t border-dashed border-gray-400 my-1"></p>
+
+<!-- Items -->
+{% for item in pesanan.detail.all %}
+<div class="mb-1">
+    <p class="font-bold">{{ item.nama_menu_snapshot }}</p>
+    <div class="flex justify-between">
+        <span>{{ item.jumlah }}x Rp {{ item.harga_snapshot|floatformat:0 }}</span>
+        <span>Rp {{ item.subtotal|floatformat:0 }}</span>
+    </div>
+</div>
+{% endfor %}
+
+<p class="border-t border-dashed border-gray-400 my-1"></p>
+
+<!-- Total -->
+<div class="flex justify-between font-bold">
+    <span>TOTAL</span>
+    <span>{{ pesanan.total_format }}</span>
+</div>
+
+{% if pesanan.catatan %}
+<p class="border-t border-dashed border-gray-400 my-1"></p>
+<p class="text-xs">Catatan: {{ pesanan.catatan }}</p>
+{% endif %}
+
+<p class="border-t border-dashed border-gray-400 my-1"></p>
+
+<!-- Footer -->
+<div class="text-center mt-2">
+    <p>{{ footer_kafe }}</p>
+    <p class="mt-1">*** {{ pesanan.nomor_pesanan }} ***</p>
+</div>

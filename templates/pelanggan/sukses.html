@@ -1,0 +1,369 @@
+{% extends 'base.html' %}
+{% block title %}E-Order — Pesanan Diterima!{% endblock %}
+{% load static %}
+{% block content %}
+<div
+    x-data="halamanSukses()"
+    x-init="inisialisasi()"
+    class="min-h-screen bg-light pb-10"
+>
+
+    <!-- ===================== -->
+    <!-- HEADER                -->
+    <!-- ===================== -->
+    <div class="bg-white shadow-soft sticky top-0 z-20">
+        <div class="px-4 py-4 max-w-lg mx-auto">
+            <h1 class="text-base font-bold text-primary text-center">
+                E-Order ☕
+            </h1>
+        </div>
+    </div>
+
+
+    <div class="max-w-lg mx-auto px-4 pt-6 space-y-4">
+
+        <!-- ===================== -->
+        <!-- ANIMASI SUKSES        -->
+        <!-- ===================== -->
+        <div class="bg-white rounded-3xl shadow-soft p-8 text-center">
+
+            <!-- Icon animasi -->
+            <div
+                x-data="{ tampil: false }"
+                x-init="setTimeout(() => tampil = true, 100)"
+            >
+                <div
+                    x-show="tampil"
+                    x-transition:enter="transition ease-out duration-500"
+                    x-transition:enter-start="opacity-0 scale-50"
+                    x-transition:enter-end="opacity-100 scale-100"
+                    class="w-24 h-24 bg-green-100 rounded-full flex items-center
+                           justify-center mx-auto mb-5"
+                >
+                    <span class="text-5xl">✅</span>
+                </div>
+            </div>
+
+            <h2 class="text-2xl font-extrabold text-primary">
+                Pesanan Diterima!
+            </h2>
+            <p class="text-muted text-sm mt-2">
+                Pesanan Anda sedang kami proses
+            </p>
+
+            <!-- Nomor Pesanan -->
+            <div class="bg-gray-50 rounded-2xl px-4 py-3 mt-5">
+                <p class="text-xs text-muted mb-1">Nomor Pesanan</p>
+                <p class="text-lg font-extrabold text-primary tracking-wide">
+                    {{ pesanan.nomor_pesanan }}
+                </p>
+            </div>
+
+            <!-- Info meja & waktu -->
+            <div class="flex gap-3 mt-3">
+                <div class="flex-1 bg-gray-50 rounded-2xl px-3 py-2.5">
+                    <p class="text-xs text-muted">Meja</p>
+                    <p class="text-sm font-bold text-primary">
+                        {{ pesanan.meja.nomor_meja }}
+                    </p>
+                </div>
+                <div class="flex-1 bg-gray-50 rounded-2xl px-3 py-2.5">
+                    <p class="text-xs text-muted">Pembayaran</p>
+                    <p class="text-sm font-bold text-primary">
+                        {{ pesanan.get_metode_bayar_display }}
+                    </p>
+                </div>
+                <div class="flex-1 bg-gray-50 rounded-2xl px-3 py-2.5">
+                    <p class="text-xs text-muted">Waktu</p>
+                    <p class="text-sm font-bold text-primary">
+                        {{ pesanan.waktu_pesan|time:"H:i" }}
+                    </p>
+                </div>
+            </div>
+
+        </div>
+
+
+        <!-- ===================== -->
+        <!-- STATUS PESANAN        -->
+        <!-- ===================== -->
+        <div class="bg-white rounded-3xl shadow-soft p-5">
+
+            <h3 class="text-sm font-bold text-primary mb-4">
+                📊 Status Pesanan
+            </h3>
+
+            <!-- Timeline status -->
+            <div class="space-y-0">
+
+                <!-- Step 1: Pending -->
+                <div class="flex items-start gap-3">
+                    <div class="flex flex-col items-center">
+                        <div
+                            class="w-8 h-8 rounded-full flex items-center
+                                   justify-center text-sm font-bold flex-shrink-0
+                                   bg-primary text-white"
+                        >✓</div>
+                        <div class="w-0.5 h-8 bg-gray-200 mt-1"></div>
+                    </div>
+                    <div class="pt-1.5">
+                        <p class="text-sm font-semibold text-primary">
+                            Pesanan Diterima
+                        </p>
+                        <p class="text-xs text-muted">
+                            {{ pesanan.waktu_pesan|time:"H:i" }} WIB
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Step 2: Diproses -->
+                <div class="flex items-start gap-3">
+                    <div class="flex flex-col items-center">
+                        <div
+                            :class="statusSaatIni === 'diproses' || statusSaatIni === 'selesai'
+                                ? 'bg-primary text-white'
+                                : 'bg-gray-100 text-gray-400'"
+                            class="w-8 h-8 rounded-full flex items-center
+                                   justify-center text-sm font-bold flex-shrink-0
+                                   transition-all duration-500"
+                        >
+                            <span x-show="statusSaatIni === 'diproses'"
+                                  class="animate-pulse">👨‍🍳</span>
+                            <span x-show="statusSaatIni === 'selesai'">✓</span>
+                            <span x-show="statusSaatIni === 'pending'">2</span>
+                        </div>
+                        <div class="w-0.5 h-8 bg-gray-200 mt-1"></div>
+                    </div>
+                    <div class="pt-1.5">
+                        <p class="text-sm font-semibold"
+                           :class="statusSaatIni === 'diproses' || statusSaatIni === 'selesai'
+                               ? 'text-primary' : 'text-gray-400'"
+                        >Sedang Diproses</p>
+                        <p class="text-xs text-muted">
+                            Dapur sedang menyiapkan pesanan Anda
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Step 3: Selesai -->
+                <div class="flex items-start gap-3">
+                    <div class="flex flex-col items-center">
+                        <div
+                            :class="statusSaatIni === 'selesai'
+                                ? 'bg-green-500 text-white'
+                                : 'bg-gray-100 text-gray-400'"
+                            class="w-8 h-8 rounded-full flex items-center
+                                   justify-center text-sm font-bold flex-shrink-0
+                                   transition-all duration-500"
+                        >
+                            <span x-show="statusSaatIni === 'selesai'">✓</span>
+                            <span x-show="statusSaatIni !== 'selesai'">3</span>
+                        </div>
+                    </div>
+                    <div class="pt-1.5">
+                        <p class="text-sm font-semibold"
+                           :class="statusSaatIni === 'selesai'
+                               ? 'text-green-600' : 'text-gray-400'"
+                        >Pesanan Selesai</p>
+                        <p class="text-xs text-muted">
+                            Pesanan siap disajikan ke meja Anda
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Badge status aktif -->
+            <div class="mt-4 pt-4 border-t border-gray-100">
+                <div
+                    :class="{
+                        'bg-yellow-50 text-yellow-700 border-yellow-200' : statusSaatIni === 'pending',
+                        'bg-blue-50 text-blue-700 border-blue-200'       : statusSaatIni === 'diproses',
+                        'bg-green-50 text-green-700 border-green-200'    : statusSaatIni === 'selesai',
+                    }"
+                    class="rounded-2xl px-4 py-3 border flex items-center
+                           justify-between"
+                >
+                    <div class="flex items-center gap-2">
+                        <span x-show="statusSaatIni === 'pending'"
+                              class="animate-pulse">⏳</span>
+                        <span x-show="statusSaatIni === 'diproses'"
+                              class="animate-pulse">👨‍🍳</span>
+                        <span x-show="statusSaatIni === 'selesai'">✅</span>
+                        <span class="text-sm font-semibold" x-text="labelStatus"></span>
+                    </div>
+                    <!-- Indikator polling -->
+                    <div x-show="statusSaatIni !== 'selesai'"
+                         class="flex items-center gap-1 text-xs opacity-60">
+                        <div class="w-1.5 h-1.5 rounded-full bg-current
+                                    animate-pulse"></div>
+                        <span>Live</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+
+        <!-- ===================== -->
+        <!-- RINGKASAN ITEM        -->
+        <!-- ===================== -->
+        <div class="bg-white rounded-3xl shadow-soft overflow-hidden">
+
+            <div class="px-5 py-4 border-b border-gray-50">
+                <h3 class="text-sm font-bold text-primary">🧾 Detail Pesanan</h3>
+            </div>
+
+            <div class="divide-y divide-gray-50">
+                {% for item in pesanan.detail.all %}
+                <div class="px-5 py-3 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-gray-100 rounded-xl
+                                    flex items-center justify-center
+                                    text-lg flex-shrink-0">
+                            🍽️
+                        </div>
+                        <div>
+                            <p class="text-sm font-semibold text-primary">
+                                {{ item.nama_menu_snapshot }}
+                            </p>
+                            <p class="text-xs text-muted">
+                                {{ item.jumlah }}x
+                                Rp {{ item.harga_snapshot|floatformat:0 }}
+                            </p>
+                        </div>
+                    </div>
+                    <p class="text-sm font-bold text-primary">
+                        {{ item.subtotal_format }}
+                    </p>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Total -->
+            <div class="px-5 py-4 bg-gray-50 border-t border-gray-100">
+                <div class="flex justify-between items-center">
+                    <span class="text-sm font-bold text-primary">Total</span>
+                    <span class="text-lg font-extrabold text-secondary">
+                        {{ pesanan.total_format }}
+                    </span>
+                </div>
+            </div>
+
+        </div>
+
+
+        <!-- ===================== -->
+        <!-- CATATAN               -->
+        <!-- ===================== -->
+        {% if pesanan.catatan %}
+        <div class="bg-white rounded-3xl shadow-soft px-5 py-4">
+            <h3 class="text-sm font-bold text-primary mb-1">📝 Catatan</h3>
+            <p class="text-sm text-muted">{{ pesanan.catatan }}</p>
+        </div>
+        {% endif %}
+
+
+        <!-- ===================== -->
+        <!-- INFO WHATSAPP         -->
+        <!-- ===================== -->
+        {% if pesanan.nomor_whatsapp %}
+        <div class="bg-green-50 rounded-3xl px-5 py-4 border border-green-200">
+            <div class="flex items-start gap-3">
+                <span class="text-2xl">📲</span>
+                <div>
+                    <p class="text-sm font-semibold text-green-800">
+                        Notifikasi WhatsApp Aktif
+                    </p>
+                    <p class="text-xs text-green-700 mt-0.5">
+                        Kami akan kirim update ke
+                        <span class="font-bold">
+                            +{{ pesanan.nomor_whatsapp }}
+                        </span>
+                        saat pesanan diproses & selesai.
+                    </p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+
+        <!-- ===================== -->
+        <!-- TOMBOL KEMBALI        -->
+        <!-- ===================== -->
+        <div class="pb-6">
+            
+               <a href="{% url 'pelanggan:daftar_menu' %}"
+                class="block w-full bg-primary text-white font-bold py-4
+                       rounded-2xl text-center active:scale-95
+                       transition-transform shadow-card"
+            >
+                ← Kembali ke Menu
+            </a>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+
+{% block extra_scripts %}
+<script>
+// Data dari Django
+const NOMOR_PESANAN  = "{{ pesanan.nomor_pesanan|escapejs }}";
+const STATUS_AWAL    = "{{ pesanan.status|escapejs }}";
+
+function halamanSukses() {
+    return {
+        statusSaatIni : STATUS_AWAL,
+        intervalPolling: null,
+
+        get labelStatus() {
+            const label = {
+                'pending' : 'Menunggu diproses...',
+                'diproses': 'Sedang diproses,
+                'selesai' : 'Pesanan siap disajikan!',
+                'dibatal' : 'Pesanan dibatalkan',
+            }
+            return label[this.statusSaatIni] ?? this.statusSaatIni
+        },
+
+        inisialisasi() {
+            // Polling cek status setiap 5 detik
+            // (berhenti jika sudah selesai/dibatal)
+            if (this.statusSaatIni === 'pending' ||
+                this.statusSaatIni === 'diproses') {
+                this.mulaiPolling()
+            }
+        },
+
+        mulaiPolling() {
+            this.intervalPolling = setInterval(() => {
+                this.cekStatus()
+            }, 5000) // 5 detik
+        },
+
+        cekStatus() {
+            fetch(`/api/status-pesanan/${NOMOR_PESANAN}/`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status) {
+                        this.statusSaatIni = data.status
+
+                        // Stop polling jika sudah selesai/dibatal
+                        if (data.status === 'selesai' ||
+                            data.status === 'dibatal') {
+                            clearInterval(this.intervalPolling)
+                        }
+                    }
+                })
+                .catch(err => {
+                    // Gagal fetch — diam saja, coba lagi 5 detik
+                    console.log('Polling gagal, retry...', err)
+                })
+        },
+
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,33 @@
+<!-- Reusable chart card — include di laporan transaksi -->
+<div class="bg-white rounded-2xl shadow-soft p-4 mb-4"
+     x-data="chartKasir(LABELS_DATA, VAL_JML, VAL_PEND, CHART_TITLE)"
+     x-init="init()">
+
+    <!-- Tabs -->
+    <div class="flex items-center justify-between mb-3">
+        <h3 class="text-sm font-bold text-primary" x-text="judul"></h3>
+        <div class="flex bg-gray-100 rounded-xl p-0.5 gap-0.5">
+            <button
+                @click="ganti('jumlah')"
+                :class="tab === 'jumlah'
+                    ? 'bg-white text-primary shadow-soft'
+                    : 'text-muted'"
+                class="px-3 py-1.5 rounded-lg text-xs font-semibold
+                       transition-all"
+            >Jml Transaksi</button>
+            <button
+                @click="ganti('pendapatan')"
+                :class="tab === 'pendapatan'
+                    ? 'bg-white text-primary shadow-soft'
+                    : 'text-muted'"
+                class="px-3 py-1.5 rounded-lg text-xs font-semibold
+                       transition-all"
+            >Pendapatan</button>
+        </div>
+    </div>
+
+    <!-- Canvas -->
+    <div style="position:relative; height:180px;">
+        <canvas id="kasirChart"></canvas>
+    </div>
+</div>

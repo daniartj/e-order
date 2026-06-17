@@ -1,0 +1,141 @@
+{% extends 'kasir/base_kasir.html' %}
+{% block title %}E-Order — Kelola Menu{% endblock %}
+{% block subtitle %}Kelola Menu{% endblock %}
+{% block kasir_content %}
+
+<div class="min-h-screen bg-gray-100">
+
+    <div class="bg-primary shadow-card sticky top-0 z-20">
+        <div class="px-4 py-4 flex items-center gap-3 max-w-4xl mx-auto">
+            <a href="{% url 'kasir:dashboard' %}"
+               class="w-9 h-9 bg-white bg-opacity-10 rounded-xl
+                      flex items-center justify-center text-white
+                      font-bold text-lg">←</a>
+            <div>
+                <h1 class="text-white font-extrabold text-lg leading-tight">
+                    🍽️ Kelola Menu
+                </h1>
+                <p class="text-white text-opacity-70 text-xs">
+                    {{ semua_menu.count }} menu
+                </p>
+            </div>
+            <a href="{% url 'kasir:tambah_menu' %}"
+               class="ml-auto bg-secondary text-white text-sm
+                      font-bold px-4 py-2 rounded-xl
+                      active:scale-95 transition-transform">
+                + Tambah
+            </a>
+        </div>
+
+        <!-- Filter Kategori -->
+        <div class="px-4 pb-3 flex gap-2 overflow-x-auto
+                    scrollbar-hide max-w-4xl mx-auto">
+            <a href="{% url 'kasir:kelola_menu' %}"
+               class="flex-shrink-0 px-4 py-1.5 rounded-full text-sm
+                      font-medium transition-all
+                      {% if not filter_kategori %}bg-white text-primary
+                      {% else %}bg-white bg-opacity-20 text-white{% endif %}">
+                Semua
+            </a>
+            {% for kat in semua_kategori %}
+            <a href="?kategori={{ kat.id }}"
+               class="flex-shrink-0 px-4 py-1.5 rounded-full text-sm
+                      font-medium transition-all
+                      {% if filter_kategori == kat.id|stringformat:'s' %}
+                          bg-white text-primary
+                      {% else %}
+                          bg-white bg-opacity-20 text-white
+                      {% endif %}">
+                {{ kat.ikon }} {{ kat.nama_kategori }}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="max-w-4xl mx-auto px-4 py-4">
+
+        <!-- Grid Menu -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {% for item in semua_menu %}
+            <div class="bg-white rounded-2xl shadow-soft overflow-hidden
+                        flex items-center gap-3 px-4 py-3">
+
+                <!-- Foto -->
+                <div class="w-16 h-16 rounded-xl overflow-hidden
+                            bg-gray-100 flex-shrink-0">
+                    {% if item.foto %}
+                    <img src="{{ item.foto.url }}"
+                         alt="{{ item.nama_menu }}"
+                         class="w-full h-full object-cover"/>
+                    {% else %}
+                    <div class="w-full h-full flex items-center
+                                justify-center text-2xl">🍽️</div>
+                    {% endif %}
+                </div>
+
+                <!-- Info -->
+                <div class="flex-1 min-w-0">
+                    <p class="font-bold text-primary text-sm truncate">
+                        {{ item.nama_menu }}
+                    </p>
+                    <p class="text-xs text-muted">
+                        {{ item.kategori.ikon }}
+                        {{ item.kategori.nama_kategori|default:"Tanpa Kategori" }}
+                    </p>
+                    <p class="text-sm font-bold text-secondary">
+                        {{ item.harga_format }}
+                    </p>
+                    <div class="flex items-center gap-2 mt-0.5">
+                        <span class="text-xs font-semibold
+                            {% if item.is_tersedia %}text-green-600
+                            {% else %}text-red-400{% endif %}">
+                            {% if item.is_tersedia %}● Tersedia
+                            {% else %}● Habis{% endif %}
+                        </span>
+                        {% if item.is_unggulan %}
+                        <span class="text-xs text-yellow-500">
+                            ⭐ Unggulan
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Aksi -->
+                <div class="flex flex-col gap-1.5 flex-shrink-0">
+                    <a href="{% url 'kasir:edit_menu' item.id %}"
+                       class="bg-gray-100 text-primary text-xs
+                              font-semibold px-3 py-1.5 rounded-xl
+                              text-center">Edit</a>
+                    <a href="{% url 'kasir:toggle_menu' item.id %}"
+                       class="text-xs font-semibold px-3 py-1.5
+                              rounded-xl text-center
+                              {% if item.is_tersedia %}
+                                  bg-red-50 text-red-500
+                              {% else %}
+                                  bg-green-50 text-green-600
+                              {% endif %}">
+                        {% if item.is_tersedia %}Habiskan
+                        {% else %}Tersediakan{% endif %}
+                    </a>
+                </div>
+
+            </div>
+            {% empty %}
+            <div class="col-span-2 bg-white rounded-2xl shadow-soft
+                        p-12 text-center">
+                <div class="text-5xl mb-4">🍽️</div>
+                <p class="font-semibold text-primary">
+                    Belum ada menu
+                </p>
+                <a href="{% url 'kasir:tambah_menu' %}"
+                   class="inline-block mt-4 bg-primary text-white
+                          text-sm font-semibold px-5 py-2.5 rounded-xl">
+                    + Tambah Menu
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+
+    </div>
+</div>
+{% endblock %}

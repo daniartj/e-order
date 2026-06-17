@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+{% block title %}E-Order — {{ aksi }} Kategori{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-100">
+
+    <div class="bg-primary shadow-card sticky top-0 z-20">
+        <div class="px-4 py-4 flex items-center gap-3 max-w-lg mx-auto">
+            <a href="{% url 'kasir:kelola_kategori' %}"
+               class="w-9 h-9 bg-white bg-opacity-10 rounded-xl
+                      flex items-center justify-center text-white
+                      font-bold text-lg">←</a>
+            <h1 class="text-white font-extrabold text-lg">
+                📂 {{ aksi }} Kategori
+            </h1>
+        </div>
+    </div>
+
+    <div class="max-w-lg mx-auto px-4 py-4">
+        <div class="bg-white rounded-2xl shadow-soft p-5">
+
+            {% if error %}
+            <div class="bg-red-50 border border-red-200 rounded-xl
+                        px-4 py-3 mb-4 text-sm text-red-600">
+                ❌ {{ error }}
+            </div>
+            {% endif %}
+
+            <form method="POST">
+                {% csrf_token %}
+
+                <!-- Nama Kategori -->
+                <div class="mb-4">
+                    <label class="block text-xs font-semibold
+                                  text-primary mb-1.5">
+                        Nama Kategori
+                    </label>
+                    <input
+                        type="text"
+                        name="nama_kategori"
+                        placeholder="Contoh: Makanan, Minuman, Dessert"
+                        {% if kategori %}
+                            value="{{ kategori.nama_kategori }}"
+                        {% endif %}
+                        class="w-full bg-gray-50 rounded-xl px-4 py-3
+                               text-sm focus:outline-none focus:ring-2
+                               focus:ring-primary border border-gray-100"
+                    />
+                </div>
+
+                <!-- Ikon -->
+                <div class="mb-4">
+                    <label class="block text-xs font-semibold
+                                  text-primary mb-1.5">
+                        Ikon Emoji
+                    </label>
+                    <input
+                        type="text"
+                        name="ikon"
+                        placeholder="🍛"
+                        {% if kategori %}
+                            value="{{ kategori.ikon }}"
+                        {% else %}
+                            value="🍽️"
+                        {% endif %}
+                        class="w-full bg-gray-50 rounded-xl px-4 py-3
+                               text-sm focus:outline-none focus:ring-2
+                               focus:ring-primary border border-gray-100"
+                    />
+                    <p class="text-xs text-muted mt-1">
+                        Paste emoji dari keyboard atau
+                        <a href="https://emojipedia.org"
+                           target="_blank"
+                           class="text-primary underline">
+                            emojipedia.org
+                        </a>
+                    </p>
+                </div>
+
+                <!-- Urutan -->
+                <div class="mb-6">
+                    <label class="block text-xs font-semibold
+                                  text-primary mb-1.5">
+                        Urutan Tampil
+                    </label>
+                    <input
+                        type="number"
+                        name="urutan"
+                        min="0"
+                        {% if kategori %}
+                            value="{{ kategori.urutan }}"
+                        {% else %}
+                            value="0"
+                        {% endif %}
+                        class="w-full bg-gray-50 rounded-xl px-4 py-3
+                               text-sm focus:outline-none focus:ring-2
+                               focus:ring-primary border border-gray-100"
+                    />
+                    <p class="text-xs text-muted mt-1">
+                        Angka kecil tampil lebih dulu
+                    </p>
+                </div>
+
+                <button
+                    type="submit"
+                    class="w-full bg-primary text-white font-bold
+                           py-3.5 rounded-2xl active:scale-95
+                           transition-transform shadow-card"
+                >
+                    {{ aksi }} Kategori
+                </button>
+
+            </form>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
