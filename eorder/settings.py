@@ -43,7 +43,7 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'eorder.urls'
 
 WSGI_APPLICATION = 'eorder.wsgi.application'
-<<<<<<< HEAD
+
 CSRF_TRUSTED_ORIGINS = [
     "https://e-order.up.railway.app",
 ]
