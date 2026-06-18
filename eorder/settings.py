@@ -1,27 +1,28 @@
 from pathlib import Path
+import dj_database_url
 import os
 from decouple import config, Csv
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-import dj_database_url
-
-# ✅ Pakai PostgreSQL di production (Railway)
-# Pakai SQLite di development (laptop)
 DATABASE_URL = config('DATABASE_URL', default='')
 
 if DATABASE_URL:
-    # Production — Railway PostgreSQL
+    # ✅ Perbaiki format URL postgres
+    if DATABASE_URL.startswith('postgres://'):
+        DATABASE_URL = DATABASE_URL.replace(
+            'postgres://', 'postgresql://', 1
+        )
+
     DATABASES = {
         'default': dj_database_url.parse(
             DATABASE_URL,
             conn_max_age=600,
-            ssl_require=True,
+            # ✅ Hapus ssl_require=True (penyebab error)
         )
     }
 else:
-    # Development — SQLite lokal
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
