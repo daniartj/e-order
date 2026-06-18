@@ -109,6 +109,7 @@ class SessionPelangganMiddleware(MiddlewareMixin):
                 "waktu_masuk_str=", waktu_masuk_str,
             )
 
+
         print(f"[DEBUG SESSION KEYS] nomor_meja={nomor_meja} waktu_masuk_str={waktu_masuk_str}")
 
         if not nomor_meja or not waktu_masuk_str:
@@ -151,6 +152,13 @@ class SessionPelangganMiddleware(MiddlewareMixin):
 
                 request.session.modified = True
 
+                # Khusus endpoint polling session: HARUS JSON biar fetch(res.json()) tidak mem-parse HTML.
+                if request.path == '/api/session-status/':
+                    return JsonResponse({
+                        'status': 'error',
+                        'session_expired': True,
+                    }, status=401)
+
                 if (
                     request.headers.get('X-Requested-With') == 'XMLHttpRequest'
                     or 'application/json' in request.headers.get('Accept', '')
@@ -161,6 +169,7 @@ class SessionPelangganMiddleware(MiddlewareMixin):
                     }, status=401)
 
                 return redirect('pelanggan:session_expired')
+
 
             request.session_expired = False
             request.sisa_menit = max(0, BATAS_MENIT - menit)

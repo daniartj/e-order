@@ -186,9 +186,18 @@
                 method: 'GET',
                 headers: {
                     'X-CSRFToken': CSRF,
+                    'Accept': 'application/json',
                 },
             })
-            .then(function(res) { return res.json(); })
+            .then(function(res) {
+                var ct = (res.headers && res.headers.get) ? res.headers.get('content-type') : '';
+
+                if (ct && ct.indexOf('application/json') === -1) {
+                    // Jika middleware mengembalikan HTML (redirect), jangan paksa res.json()
+                    throw new Error('Non-JSON response: ' + ct);
+                }
+                return res.json();
+            })
             .then(function(data) {
                 console.log('[DEBUG] Response:', data);
                 if (data.session_expired && !sudahExpired) {
