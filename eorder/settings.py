@@ -5,12 +5,29 @@ from decouple import config, Csv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+import dj_database_url
+
+# ✅ Pakai PostgreSQL di production (Railway)
+# Pakai SQLite di development (laptop)
+DATABASE_URL = config('DATABASE_URL', default='')
+
+if DATABASE_URL:
+    # Production — Railway PostgreSQL
+    DATABASES = {
+        'default': dj_database_url.parse(
+            DATABASE_URL,
+            conn_max_age=600,
+            ssl_require=True,
+        )
     }
-}
+else:
+    # Development — SQLite lokal
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME'  : BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 SECRET_KEY = config('SECRET_KEY')
 DEBUG      = config('DEBUG', default=False, cast=bool)
