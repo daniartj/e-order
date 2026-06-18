@@ -3,8 +3,14 @@ import os
 from decouple import config, Csv
 
 
-
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
 
 SECRET_KEY = config('SECRET_KEY')
 DEBUG      = config('DEBUG', default=False, cast=bool)
@@ -66,12 +72,7 @@ TEMPLATES = [
     },
 ]
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': '/app/data/db.sqlite3',
-    }
-}
+
 
 
 SESSION_ENGINE            = 'django.contrib.sessions.backends.db'
