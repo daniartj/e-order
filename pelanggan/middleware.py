@@ -11,12 +11,13 @@ from pelanggan.utils import get_client_ip, ip_diizinkan
 
 class SessionPelangganMiddleware(MiddlewareMixin):
 
+    # URL yang ditolak middleware JAM/SESSION (mis. static/media dan endpoint tertentu)
+    # Catatan: jangan pakai entri yang terlalu umum seperti '/' karena akan meloloskan banyak request.
     URL_BEBAS = [
-        '/kasir/',
-        '/admin/',
         '/static/',
         '/media/',
-        '/',
+        '/kasir/',
+        '/admin/',
         '/session-expired/',
         '/hapus-session/',
         '/reset-session/',
@@ -25,6 +26,7 @@ class SessionPelangganMiddleware(MiddlewareMixin):
         '/tutup/',
     ]
 
+    # URL pelanggan yang butuh session.
     URL_BUTUH_SESSION = [
         '/daftar-menu/',
         '/checkout/',
@@ -44,9 +46,6 @@ class SessionPelangganMiddleware(MiddlewareMixin):
             print("[DEBUG MW] skip untuk kasir/admin karena request.user.is_authenticated=True")
             return None
 
-
-
-
         # Skip URL bebas
         for url in self.URL_BEBAS:
             if request.path.startswith(url):
@@ -62,15 +61,13 @@ class SessionPelangganMiddleware(MiddlewareMixin):
         # CEK JAM OPERASIONAL
         # ==============================
         if setting and setting.cek_jam_operasional:
-            jam_sekarang = timezone.localtime(
-                timezone.now()
-            ).time()
+            jam_sekarang = timezone.localtime(timezone.now()).time()
             if not (setting.jam_buka <= jam_sekarang <= setting.jam_tutup):
                 return render(
                     request,
                     'pelanggan/tutup.html',
                     {
-                        'jam_buka' : setting.jam_buka.strftime('%H:%M'),
+                        'jam_buka': setting.jam_buka.strftime('%H:%M'),
                         'jam_tutup': setting.jam_tutup.strftime('%H:%M'),
                     }
                 )
@@ -78,15 +75,17 @@ class SessionPelangganMiddleware(MiddlewareMixin):
         # ==============================
         # CEK WIFI (hanya untuk /menu/)
         # ==============================
-        if (setting and setting.wifi_aktif
-                and request.path.startswith('/menu/')):
+        if (
+            setting and setting.wifi_aktif
+            and request.path.startswith('/menu/')
+        ):
             ip_client = get_client_ip(request)
             if not ip_diizinkan(ip_client, setting.wifi_ip_range):
                 return render(
                     request,
                     'pelanggan/akses_ditolak.html',
                     {
-                        'pesan'         : setting.pesan_wifi,
+                        'pesan': setting.pesan_wifi,
                         'wifi_password': setting.wifi_password,
                     }
                 )
@@ -94,7 +93,7 @@ class SessionPelangganMiddleware(MiddlewareMixin):
         # ==============================
         # CEK SESSION
         # ==============================
-        nomor_meja      = request.session.get('nomor_meja')
+        nomor_meja = request.session.get('nomor_meja')
         waktu_masuk_str = request.session.get('waktu_masuk')
 
         butuh_session = any(
@@ -109,6 +108,7 @@ class SessionPelangganMiddleware(MiddlewareMixin):
                 "nomor_meja=", nomor_meja,
                 "waktu_masuk_str=", waktu_masuk_str,
             )
+
         print(f"[DEBUG SESSION KEYS] nomor_meja={nomor_meja} waktu_masuk_str={waktu_masuk_str}")
 
         if not nomor_meja or not waktu_masuk_str:
@@ -116,17 +116,17 @@ class SessionPelangganMiddleware(MiddlewareMixin):
                 return redirect('pelanggan:utama')
             return None
 
-
         try:
             import logging
             logging.warning("[DEBUG MW] waktu_masuk_str=%s", waktu_masuk_str)
-            waktu_masuk = datetime.datetime.fromisoformat(waktu_masuk_str)
 
+            waktu_masuk = datetime.datetime.fromisoformat(waktu_masuk_str)
             if waktu_masuk.tzinfo is None:
                 waktu_masuk = timezone.make_aware(waktu_masuk)
 
-            selisih     = timezone.now() - waktu_masuk
-            menit       = selisih.total_seconds() / 60
+            selisih = timezone.now() - waktu_masuk
+            menit = selisih.total_seconds() / 60
+
             BATAS_MENIT = setting.durasi_session if setting else 10
 
             import logging
@@ -138,26 +138,32 @@ class SessionPelangganMiddleware(MiddlewareMixin):
                 BATAS_MENIT,
             )
 
-
             if menit >= BATAS_MENIT:
                 # Hapus session
-                for kunci in ['nomor_meja', 'waktu_masuk',
-                              'keranjang', 'daftar_pesanan']:
+                for kunci in [
+                    'nomor_meja',
+                    'waktu_masuk',
+                    'keranjang',
+                    'daftar_pesanan'
+                ]:
                     if kunci in request.session:
                         del request.session[kunci]
+
                 request.session.modified = True
 
-                if (request.headers.get('X-Requested-With') == 'XMLHttpRequest'
-                        or 'application/json' in request.headers.get('Accept', '')):
+                if (
+                    request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+                    or 'application/json' in request.headers.get('Accept', '')
+                ):
                     return JsonResponse({
-                        'status'         : 'error',
+                        'status': 'error',
                         'session_expired': True,
                     }, status=401)
 
                 return redirect('pelanggan:session_expired')
 
             request.session_expired = False
-            request.sisa_menit      = max(0, BATAS_MENIT - menit)
+            request.sisa_menit = max(0, BATAS_MENIT - menit)
 
         except Exception as e:
             import logging
@@ -172,8 +178,9 @@ class SessionPelangganMiddleware(MiddlewareMixin):
                 getattr(setting, 'durasi_session', None),
                 durasi_fallback,
             )
-            request.session_expired = False
-            request.sisa_menit      = durasi_fallback
 
+            request.session_expired = False
+            request.sisa_menit = durasi_fallback
 
         return None
+
