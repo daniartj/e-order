@@ -2,42 +2,33 @@
 {% block title %}E-Order — Menu{% endblock %}
 {% load static %}
 {% block content %}
-<div
-    x-data="halamanMenu()"
-    x-init="inisialisasi()"
-    class="min-h-screen bg-light pb-32"
->
+<div x-data="halamanMenu()" x-init="inisialisasi()" class="min-h-screen bg-light pb-32">
 
     <!-- ===================== -->
     <!-- HEADER STICKY         -->
     <!-- ===================== -->
-    <div class="bg-white shadow-soft sticky top-0 z-20">
-        <div class="px-4 py-3 flex items-center justify-between max-w-lg mx-auto">
+    <div class="bg-white/95 backdrop-blur-md border-b border-gray-100 sticky top-0 z-20">
+        <div class="px-4 py-3.5 flex items-center justify-between max-w-lg mx-auto mt-2">
 
             <!-- Info Meja -->
             <div>
-                <h1 class="text-base font-bold text-primary leading-tight flex items-center gap-2">
-                    <img src="{% static 'img/logo.png' %}" alt="E-Order" class="w-6 h-6 object-contain" />
+                <h1 class="text-xl font-bold text-primary tracking-tight leading-tight flex items-center gap-2 mt-4">
                     E-Order
                 </h1>
-                <p class="text-xs text-muted">🪑 Meja {{ nomor_meja }}</p>
+                <p class="text-[11px] font-medium text-muted flex items-center gap-1 mt-0.5">
+                    <span class="inline-block w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
+                    Meja {{ nomor_meja }}
+                </p>
             </div>
 
             <!-- Tombol Keranjang -->
-            <button
-                @click="bukaKeranjang()"
-                class="relative bg-primary text-white px-4 py-2 rounded-2xl
-                       flex items-center gap-2 text-sm font-semibold
-                       active:scale-95 transition-transform shadow-soft"
-            >
-                🛒 Keranjang
-                <span
-                    x-show="totalItem > 0"
-                    x-text="totalItem"
-                    class="bg-secondary text-white text-xs font-bold
-                           w-5 h-5 rounded-full flex items-center
-                           justify-center leading-none"
-                ></span>
+            <button @click="bukaKeranjang()" class="relative bg-primary hover:bg-primary/90 text-white w-10 h-10 rounded-full
+                       flex items-center justify-center text-sm
+                       active:scale-95 transition-all shadow-soft">
+                🛒
+                <span x-show="totalItem > 0" x-text="totalItem" class="absolute -top-1 -right-1 bg-secondary text-white text-[9px] font-bold
+                           w-4.5 h-4.5 rounded-full flex items-center
+                           justify-center leading-none shadow-soft border border-white"></span>
             </button>
         </div>
 
@@ -46,25 +37,16 @@
         <!-- ===================== -->
         <div class="px-4 pb-3 max-w-lg mx-auto">
             <div class="relative">
-                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-muted text-sm">
+                <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted text-sm pointer-events-none">
                     🔍
                 </span>
-                <input
-                    type="text"
-                    x-model="kataPencarian"
-                    placeholder="Cari menu..."
-                    class="w-full bg-gray-100 rounded-2xl pl-9 pr-4 py-2.5
-                           text-sm text-primary placeholder-gray-400
-                           focus:outline-none focus:ring-2 focus:ring-primary
-                           focus:bg-white transition-all"
-                />
+                <input type="text" x-model="kataPencarian" placeholder="Cari menu favorit Anda..." class="w-full bg-gray-50 rounded-2xl pl-10 pr-9 py-2.5
+                           text-xs text-primary placeholder-gray-400 border border-transparent
+                           focus:outline-none focus:ring-2 focus:ring-secondary/20 focus:border-secondary
+                           focus:bg-white transition-all duration-200" />
                 <!-- Tombol hapus pencarian -->
-                <button
-                    x-show="kataPencarian !== ''"
-                    @click="kataPencarian = ''"
-                    class="absolute right-3 top-1/2 -translate-y-1/2
-                           text-muted text-lg leading-none"
-                >&times;</button>
+                <button x-show="kataPencarian !== ''" @click="kataPencarian = ''" class="absolute right-3.5 top-1/2 -translate-y-1/2
+                           text-gray-400 hover:text-primary text-lg leading-none">&times;</button>
             </div>
         </div>
 
@@ -73,26 +55,18 @@
         <!-- ===================== -->
         <div class="px-4 pb-3 flex gap-2 overflow-x-auto scrollbar-hide max-w-lg mx-auto">
             <!-- Semua -->
-            <button
-                @click="filterKategori = null; kataPencarian = ''"
-                :class="filterKategori === null
+            <button @click="filterKategori = null; kataPencarian = ''" :class="filterKategori === null
                     ? 'bg-primary text-white shadow-soft'
-                    : 'bg-gray-100 text-gray-600'"
-                class="flex-shrink-0 px-4 py-1.5 rounded-full text-sm
-                       font-medium transition-all duration-200"
-            >
+                    : 'bg-gray-100 hover:bg-gray-200/70 text-gray-600'" class="flex-shrink-0 px-4 py-1.5 rounded-full text-xs
+                       font-semibold transition-all duration-200">
                 🍽️ Semua
             </button>
 
             <template x-for="kat in dataKategori" :key="kat.id">
-                <button
-                    @click="filterKategori = kat.id; kataPencarian = ''"
-                    :class="filterKategori === kat.id
+                <button @click="filterKategori = kat.id; kataPencarian = ''" :class="filterKategori === kat.id
                         ? 'bg-primary text-white shadow-soft'
-                        : 'bg-gray-100 text-gray-600'"
-                    class="flex-shrink-0 px-4 py-1.5 rounded-full text-sm
-                           font-medium transition-all duration-200"
-                >
+                        : 'bg-gray-100 hover:bg-gray-200/70 text-gray-600'" class="flex-shrink-0 px-4 py-1.5 rounded-full text-xs
+                           font-semibold transition-all duration-200">
                     <span x-text="kat.ikon + ' ' + kat.nama_kategori"></span>
                 </button>
             </template>
@@ -112,16 +86,13 @@
         </p>
 
         {% for p in daftar_pesanan_aktif %}
-        <a
-            href="{% url 'pelanggan:pesanan_sukses' p.nomor_pesanan %}"
-            class="flex items-center justify-between bg-white
+        <a href="{% url 'pelanggan:pesanan_sukses' p.nomor_pesanan %}" class="flex items-center justify-between bg-white
                    rounded-2xl px-4 py-3 shadow-soft
                    active:scale-95 transition-transform border-2
                    {% if p.status == 'selesai' %}border-green-300
                    {% elif p.status == 'diproses' %}border-blue-300
                    {% elif p.status == 'dibatal' %}border-red-200
-                   {% else %}border-primary{% endif %}"
-        >
+                   {% else %}border-primary{% endif %}">
             <!-- Kiri: icon + info -->
             <div class="flex items-center gap-3">
 
@@ -134,13 +105,13 @@
                                 {% elif p.status == 'selesai' %}bg-green-100
                                 {% else %}bg-gray-100{% endif %}">
                         {% if p.status == 'pending' %}
-                            <span class="text-lg">⏳</span>
+                        <span class="text-lg">⏳</span>
                         {% elif p.status == 'diproses' %}
-                            <span class="text-lg">👨‍🍳</span>
+                        <span class="text-lg">👨‍🍳</span>
                         {% elif p.status == 'selesai' %}
-                            <span class="text-lg">✅</span>
+                        <span class="text-lg">✅</span>
                         {% else %}
-                            <span class="text-lg">❌</span>
+                        <span class="text-lg">❌</span>
                         {% endif %}
                     </div>
 
@@ -189,8 +160,7 @@
         <div x-show="kataPencarian !== ''" class="pt-4 pb-1">
             <p class="text-xs text-muted">
                 Hasil pencarian untuk
-                <span class="font-semibold text-primary"
-                      x-text='"&quot;" + kataPencarian + "&quot;"'>
+                <span class="font-semibold text-primary" x-text='"&quot;" + kataPencarian + "&quot;"'>
                 </span>
                 — <span x-text="menuTerfilter.length"></span> menu ditemukan
             </p>
@@ -199,77 +169,51 @@
         <!-- ===================== -->
         <!-- SECTION: UNGGULAN     -->
         <!-- ===================== -->
-        <div
-            x-show="filterKategori === null && kataPencarian === ''"
-            class="pt-4"
-        >
-            <h2 class="text-sm font-bold text-primary mb-3">⭐ Menu Unggulan</h2>
+        <div x-show="filterKategori === null && kataPencarian === ''" class="pt-5">
+            <div class="flex items-center gap-1.5 mb-3.5">
+                <span class="text-base">⭐</span>
+                <h2 class="text-sm font-bold text-primary tracking-tight">Menu Terlaris</h2>
+            </div>
 
-            <div class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-4 px-4">
-                <template
-                    x-for="item in dataMenu.filter(m => m.is_unggulan)"
-                    :key="'unggulan-' + item.id"
-                >
-                    <div class="flex-shrink-0 w-36 bg-white rounded-2xl
-                                shadow-soft overflow-hidden">
+            <div class="flex gap-3.5 overflow-x-auto pb-3.5 scrollbar-hide -mx-4 px-4">
+                <template x-for="item in dataMenu.filter(m => m.is_unggulan)" :key="'unggulan-' + item.id">
+                    <div
+                        class="group flex-shrink-0 w-36 bg-white rounded-2xl
+                                shadow-soft hover:shadow-card active:scale-[0.99] transition-all duration-300 overflow-hidden flex flex-col">
                         <!-- Foto -->
-                        <div class="h-24 bg-gray-100 overflow-hidden">
-                            <img
-                                x-show="item.foto"
-                                :src="item.foto"
-                                :alt="item.nama_menu"
-                                class="w-full h-full object-cover"
-                            />
-                            <div
-                                x-show="!item.foto"
-                                class="w-full h-full flex items-center
-                                       justify-center text-3xl"
-                            >🍽️</div>
+                        <div class="h-24 bg-gray-50 overflow-hidden relative">
+                            <img x-show="item.foto" :src="item.foto" :alt="item.nama_menu"
+                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                            <div x-show="!item.foto" class="w-full h-full flex items-center
+                                       justify-center text-2xl bg-gray-50">🍽️</div>
                         </div>
 
                         <!-- Info + Tombol -->
-                        <div class="p-2">
+                        <div class="p-2.5 flex flex-col flex-1">
                             <p class="text-xs font-semibold text-primary
-                                      line-clamp-2 leading-tight"
-                               x-text="item.nama_menu">
+                                      line-clamp-2 leading-tight flex-1" x-text="item.nama_menu">
                             </p>
-                            <p class="text-xs font-bold text-secondary mt-1"
-                               x-text="item.harga_format">
+                            <p class="text-xs font-bold text-secondary mt-1.5 tabular-nums" x-text="item.harga_format">
                             </p>
 
                             <!-- Tombol ± (mini) -->
-                            <div class="mt-2">
+                            <div class="mt-2.5">
                                 <!-- Belum ada di keranjang → tombol + -->
-                                <button
-                                    x-show="!dalamKeranjang(item.id)"
-                                    @click="tambahKeKeranjang(item)"
-                                    class="w-full bg-primary text-white text-xs
-                                           font-bold py-1.5 rounded-xl
-                                           active:scale-95 transition-transform"
-                                >+ Tambah</button>
+                                <button x-show="!dalamKeranjang(item.id)" @click="tambahKeKeranjang(item)" class="w-full bg-primary hover:bg-primary/95 text-white text-[11px]
+                                           font-bold py-2 rounded-xl
+                                           active:scale-95 transition-all">+ Tambah</button>
 
                                 <!-- Sudah ada → tombol - jumlah + -->
-                                <div
-                                    x-show="dalamKeranjang(item.id)"
-                                    class="flex items-center justify-between
-                                           bg-gray-100 rounded-xl overflow-hidden"
-                                >
-                                    <button
-                                        @click="kurangiItem(item.id)"
-                                        class="w-8 h-8 flex items-center justify-center
-                                               text-primary font-bold text-lg
-                                               active:bg-gray-200 transition-colors"
-                                    >−</button>
-                                    <span
-                                        class="text-sm font-bold text-primary"
-                                        x-text="keranjang[String(item.id)]?.jumlah ?? 0"
-                                    ></span>
-                                    <button
-                                        @click="tambahKeKeranjang(item)"
-                                        class="w-8 h-8 flex items-center justify-center
-                                               text-primary font-bold text-lg
-                                               active:bg-gray-200 transition-colors"
-                                    >+</button>
+                                <div x-show="dalamKeranjang(item.id)" class="flex items-center justify-between
+                                           bg-gray-100 rounded-xl overflow-hidden">
+                                    <button @click="kurangiItem(item.id)" class="w-8 h-8 flex items-center justify-center
+                                               text-primary font-bold text-base
+                                               active:bg-gray-200 transition-colors">−</button>
+                                    <span class="text-xs font-bold text-primary tabular-nums"
+                                        x-text="keranjang[String(item.id)]?.jumlah ?? 0"></span>
+                                    <button @click="tambahKeKeranjang(item)" class="w-8 h-8 flex items-center justify-center
+                                               text-primary font-bold text-base
+                                               active:bg-gray-200 transition-colors">+</button>
                                 </div>
                             </div>
                         </div>
@@ -277,11 +221,8 @@
                 </template>
 
                 <!-- Empty state unggulan -->
-                <div
-                    x-show="dataMenu.filter(m => m.is_unggulan).length === 0"
-                    class="text-xs text-muted py-4"
-                >
-                    Belum ada menu unggulan
+                <div x-show="dataMenu.filter(m => m.is_unggulan).length === 0" class="text-xs text-muted py-4 px-1">
+                    Belum ada menu unggulan saat ini
                 </div>
             </div>
         </div>
@@ -291,118 +232,81 @@
         <!-- ===================== -->
         <!-- DAFTAR MENU UTAMA     -->
         <!-- ===================== -->
-        <div class="mt-4">
-            <h2 class="text-sm font-bold text-primary mb-3">
-                <span x-show="kataPencarian !== ''">
-                    🔍 Hasil Pencarian
-                </span>
-                <span x-show="kataPencarian === '' && filterKategori === null">
-                    📋 Semua Menu
-                </span>
+        <div class="mt-5">
+            <h2 class="text-sm font-bold text-primary mb-3.5 tracking-tight flex items-center gap-1.5">
+                <span x-show="kataPencarian !== ''">🔍 Hasil Pencarian</span>
+                <span x-show="kataPencarian === '' && filterKategori === null">📋 Semua Menu</span>
                 <span x-show="kataPencarian === '' && filterKategori !== null"
-                      x-text="'📋 ' + (dataKategori.find(k => k.id === filterKategori)?.nama_kategori ?? 'Menu')">
+                    x-text="'📋 ' + (dataKategori.find(k => k.id === filterKategori)?.nama_kategori ?? 'Menu')">
                 </span>
             </h2>
 
             <!-- Grid 2 kolom di HP, 3 kolom di tablet+ -->
-            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3.5">
                 <template x-for="item in menuTerfilter" :key="item.id">
-                    <div class="bg-white rounded-2xl shadow-soft
-                                overflow-hidden flex flex-col">
+                    <div class="group bg-white rounded-2xl shadow-soft hover:shadow-card
+                                overflow-hidden flex flex-col transition-all duration-300 active:scale-[0.99]">
 
                         <!-- Foto -->
-                        <div class="h-32 bg-gray-100 overflow-hidden relative flex-shrink-0">
-                            <img
-                                x-show="item.foto"
-                                :src="item.foto"
-                                :alt="item.nama_menu"
-                                class="w-full h-full object-cover"
-                            />
-                            <div
-                                x-show="!item.foto"
-                                class="w-full h-full flex items-center
-                                       justify-center text-4xl"
-                            >🍽️</div>
+                        <div class="h-32 bg-gray-50 overflow-hidden relative flex-shrink-0">
+                            <img x-show="item.foto" :src="item.foto" :alt="item.nama_menu"
+                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                            <div x-show="!item.foto" class="w-full h-full flex items-center
+                                       justify-center text-3xl bg-gray-50">🍽️</div>
 
                             <!-- Badge unggulan -->
-                            <div
-                                x-show="item.is_unggulan"
-                                class="absolute top-2 left-2 bg-secondary
-                                       text-white text-xs font-bold
-                                       px-2 py-0.5 rounded-full"
-                            >⭐</div>
+                            <div x-show="item.is_unggulan" class="absolute top-2 left-2 bg-secondary/95 backdrop-blur-sm
+                                       text-white text-[10px] font-bold
+                                       px-2.5 py-0.5 rounded-full shadow-soft">⭐ Terlaris</div>
                         </div>
 
                         <!-- Info -->
                         <div class="p-3 flex flex-col flex-1">
-                            <p
-                                class="text-sm font-semibold text-primary
-                                       line-clamp-2 leading-tight flex-1"
-                                x-text="item.nama_menu"
-                            ></p>
-                            <p
-                                class="text-xs text-muted mt-1 line-clamp-1"
-                                x-text="item.deskripsi"
-                            ></p>
+                            <p class="text-sm font-semibold text-primary
+                                       line-clamp-2 leading-tight flex-1" x-text="item.nama_menu"></p>
+                            <p class="text-[11px] text-muted mt-1.5 line-clamp-1" x-text="item.deskripsi"></p>
 
                             <!-- Harga -->
-                            <p
-                                class="text-sm font-bold text-secondary mt-2"
-                                x-text="item.harga_format"
-                            ></p>
+                            <p class="text-xs font-bold text-secondary mt-2.5 tabular-nums" x-text="item.harga_format">
+                            </p>
 
                             <!-- ======================== -->
                             <!-- TOMBOL ±                 -->
                             <!-- ======================== -->
-                            <div class="mt-2">
+                            <div class="mt-3">
 
                                 <!-- Belum ada di keranjang → tampil tombol + -->
-                                <button
-                                    x-show="!dalamKeranjang(item.id)"
-                                    @click="tambahKeKeranjang(item)"
-                                    class="w-full bg-primary text-white text-sm
+                                <button x-show="!dalamKeranjang(item.id)" @click="tambahKeKeranjang(item)" class="w-full bg-primary hover:bg-primary/95 text-white text-xs
                                            font-bold py-2 rounded-xl
-                                           active:scale-95 transition-transform
-                                           flex items-center justify-center gap-1"
-                                >
-                                    <span class="text-base leading-none">+</span>
+                                           active:scale-95 transition-all
+                                           flex items-center justify-center gap-1">
+                                    <span class="text-sm leading-none">+</span>
                                     <span>Tambah</span>
                                 </button>
 
                                 <!-- Sudah ada → tampil - jumlah + -->
-                                <div
-                                    x-show="dalamKeranjang(item.id)"
+                                <div x-show="dalamKeranjang(item.id)"
                                     x-transition:enter="transition ease-out duration-200"
                                     x-transition:enter-start="opacity-0 scale-95"
-                                    x-transition:enter-end="opacity-100 scale-100"
-                                    class="flex items-center justify-between
+                                    x-transition:enter-end="opacity-100 scale-100" class="flex items-center justify-between
                                            bg-primary rounded-xl overflow-hidden
-                                           shadow-soft"
-                                >
+                                           shadow-soft">
                                     <!-- Tombol kurangi -->
-                                    <button
-                                        @click="kurangiItem(item.id)"
-                                        class="w-10 h-9 flex items-center justify-center
-                                               text-white font-bold text-xl
+                                    <button @click="kurangiItem(item.id)" class="w-10 h-9 flex items-center justify-center
+                                               text-white font-bold text-base
                                                active:bg-white active:bg-opacity-20
-                                               transition-colors select-none"
-                                    >−</button>
+                                               transition-colors select-none">−</button>
 
                                     <!-- Jumlah -->
-                                    <span
-                                        class="text-white font-bold text-sm min-w-[1.5rem]
-                                               text-center"
-                                        x-text="keranjang[String(item.id)]?.jumlah ?? 0"
-                                    ></span>
+                                    <span class="text-white font-bold text-xs min-w-[1.5rem]
+                                               text-center tabular-nums"
+                                        x-text="keranjang[String(item.id)]?.jumlah ?? 0"></span>
 
                                     <!-- Tombol tambah -->
-                                    <button
-                                        @click="tambahKeKeranjang(item)"
-                                        class="w-10 h-9 flex items-center justify-center
-                                               text-white font-bold text-xl
+                                    <button @click="tambahKeKeranjang(item)" class="w-10 h-9 flex items-center justify-center
+                                               text-white font-bold text-base
                                                active:bg-white active:bg-opacity-20
-                                               transition-colors select-none"
-                                    >+</button>
+                                               transition-colors select-none">+</button>
                                 </div>
 
                             </div>
@@ -414,13 +318,10 @@
             </div>
 
             <!-- Empty state -->
-            <div
-                x-show="menuTerfilter.length === 0"
-                class="text-center py-16 text-muted"
-            >
-                <div class="text-5xl mb-3">🔍</div>
-                <p class="text-sm font-medium">Menu tidak ditemukan</p>
-                <p class="text-xs mt-1">Coba kata kunci lain</p>
+            <div x-show="menuTerfilter.length === 0" class="text-center py-16 text-muted">
+                <div class="text-4xl mb-3">🔍</div>
+                <p class="text-xs font-semibold text-primary">Menu tidak ditemukan</p>
+                <p class="text-[11px] mt-0.5">Silakan coba kata kunci atau filter lain</p>
             </div>
 
         </div>
@@ -433,30 +334,19 @@
     <!-- ===================== -->
     <!-- FLOATING KERANJANG    -->
     <!-- ===================== -->
-    <div
-        x-show="totalItem > 0"
-        x-transition:enter="transition ease-out duration-300"
-        x-transition:enter-start="opacity-0 translate-y-4"
-        x-transition:enter-end="opacity-100 translate-y-0"
-        x-transition:leave="transition ease-in duration-200"
-        x-transition:leave-end="opacity-0 translate-y-4"
+    <div x-show="totalItem > 0" x-transition:enter="transition ease-out duration-300"
+        x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0"
+        x-transition:leave="transition ease-in duration-200" x-transition:leave-end="opacity-0 translate-y-4"
         class="fixed bottom-6 left-4 right-4 z-30 max-w-lg mx-auto"
-        style="left: 50%; transform: translateX(-50%); width: calc(100% - 2rem); max-width: 32rem;"
-    >
-        <button
-            @click="bukaKeranjang()"
-            class="w-full bg-primary text-white py-4 rounded-2xl
+        style="left: 50%; transform: translateX(-50%); width: calc(100% - 2rem); max-width: 32rem;">
+        <button @click="bukaKeranjang()" class="w-full bg-primary text-white py-4 rounded-2xl
                    flex items-center justify-between px-5
-                   shadow-card active:scale-95 transition-transform"
-        >
+                   shadow-card active:scale-95 transition-transform">
             <div class="bg-white bg-opacity-20 rounded-xl px-3 py-1">
                 <span class="text-sm font-bold" x-text="totalItem + ' item'"></span>
             </div>
             <span class="font-bold text-base">Lihat Keranjang 🛒</span>
-            <span
-                class="text-sm font-bold text-secondary"
-                x-text="formatRupiah(totalHarga)"
-            ></span>
+            <span class="text-sm font-bold text-secondary" x-text="formatRupiah(totalHarga)"></span>
         </button>
     </div>
     <!-- END FLOATING -->
@@ -465,55 +355,32 @@
     <!-- ===================== -->
     <!-- TOAST NOTIFIKASI      -->
     <!-- ===================== -->
-    <div
-        x-show="tampilToast"
-        x-transition:enter="transition ease-out duration-300"
-        x-transition:enter-start="opacity-0 -translate-y-2"
-        x-transition:enter-end="opacity-100 translate-y-0"
-        x-transition:leave="transition ease-in duration-200"
-        x-transition:leave-end="opacity-0"
-        class="fixed top-20 left-4 right-4 z-50 max-w-lg mx-auto
+    <div x-show="tampilToast" x-transition:enter="transition ease-out duration-300"
+        x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0"
+        x-transition:leave="transition ease-in duration-200" x-transition:leave-end="opacity-0" class="fixed top-20 left-4 right-4 z-50 max-w-lg mx-auto
                pointer-events-none"
-        style="left: 50%; transform: translateX(-50%); width: calc(100% - 2rem); max-width: 32rem;"
-    >
-        <div
-            class="bg-primary text-white text-sm font-medium
-                   px-4 py-3 rounded-2xl shadow-card text-center"
-            x-text="pesanToast"
-        ></div>
+        style="left: 50%; transform: translateX(-50%); width: calc(100% - 2rem); max-width: 32rem;">
+        <div class="bg-primary text-white text-sm font-medium
+                   px-4 py-3 rounded-2xl shadow-card text-center" x-text="pesanToast"></div>
     </div>
     <!-- END TOAST -->
 
-<!-- ===================== -->
+    <!-- ===================== -->
     <!-- BOTTOM SHEET KERANJANG-->
     <!-- ===================== -->
 
     <!-- Overlay gelap -->
-    <div
-        x-show="tampilKeranjang"
-        x-transition:enter="transition ease-out duration-300"
-        x-transition:enter-start="opacity-0"
-        x-transition:enter-end="opacity-100"
-        x-transition:leave="transition ease-in duration-200"
-        x-transition:leave-end="opacity-0"
-        @click="tutupKeranjang()"
-        class="fixed inset-0 bg-black bg-opacity-50 z-40"
-    ></div>
+    <div x-show="tampilKeranjang" x-transition:enter="transition ease-out duration-300"
+        x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+        x-transition:leave="transition ease-in duration-200" x-transition:leave-end="opacity-0"
+        @click="tutupKeranjang()" class="fixed inset-0 bg-black bg-opacity-50 z-40"></div>
 
     <!-- Bottom Sheet Panel -->
-    <div
-        x-show="tampilKeranjang"
-        x-transition:enter="transition ease-out duration-300"
-        x-transition:enter-start="opacity-0 translate-y-full"
-        x-transition:enter-end="opacity-100 translate-y-0"
-        x-transition:leave="transition ease-in duration-200"
-        x-transition:leave-end="opacity-0 translate-y-full"
-        class="fixed bottom-0 left-0 right-0 z-50
+    <div x-show="tampilKeranjang" x-transition:enter="transition ease-out duration-300"
+        x-transition:enter-start="opacity-0 translate-y-full" x-transition:enter-end="opacity-100 translate-y-0"
+        x-transition:leave="transition ease-in duration-200" x-transition:leave-end="opacity-0 translate-y-full" class="fixed bottom-0 left-0 right-0 z-50
                bg-white rounded-t-3xl shadow-2xl
-               max-w-lg mx-auto"
-        style="max-height: 85vh; display: flex; flex-direction: column;"
-        @click.stop
-    >
+               max-w-lg mx-auto" style="max-height: 85vh; display: flex; flex-direction: column;" @click.stop>
 
         <!-- ---------- HANDLE BAR ---------- -->
         <div class="flex justify-center pt-3 pb-1 flex-shrink-0">
@@ -525,91 +392,61 @@
                     border-b border-gray-100 flex-shrink-0">
             <div>
                 <h2 class="text-base font-bold text-primary">🛒 Keranjang</h2>
-                <p class="text-xs text-muted"
-                   x-text="totalItem + ' item · Meja ' + '{{ nomor_meja|escapejs }}'">
+                <p class="text-xs text-muted" x-text="totalItem + ' item · Meja ' + '{{ nomor_meja|escapejs }}'">
                 </p>
             </div>
             <!-- Tombol hapus semua -->
-            <button
-                x-show="totalItem > 0"
-                @click="konfirmasiHapusSemua()"
-                class="text-xs text-red-400 font-medium
-                       active:text-red-600 transition-colors"
-            >
+            <button x-show="totalItem > 0" @click="konfirmasiHapusSemua()" class="text-xs text-red-400 font-medium
+                       active:text-red-600 transition-colors">
                 Hapus Semua
             </button>
             <!-- Tombol tutup -->
-            <button
-                @click="tutupKeranjang()"
-                class="w-8 h-8 bg-gray-100 rounded-full flex items-center
+            <button @click="tutupKeranjang()" class="w-8 h-8 bg-gray-100 rounded-full flex items-center
                        justify-center text-gray-500 font-bold text-lg
-                       active:bg-gray-200 transition-colors ml-2"
-            >&times;</button>
+                       active:bg-gray-200 transition-colors ml-2">&times;</button>
         </div>
 
         <!-- ---------- ISI KERANJANG ---------- -->
         <div class="overflow-y-auto flex-1 px-5 py-3">
 
             <!-- Empty state -->
-            <div
-                x-show="totalItem === 0"
-                class="flex flex-col items-center justify-center py-16 text-muted"
-            >
+            <div x-show="totalItem === 0" class="flex flex-col items-center justify-center py-16 text-muted">
                 <div class="text-6xl mb-4">🛒</div>
                 <p class="font-medium text-sm">Keranjang masih kosong</p>
                 <p class="text-xs mt-1">Yuk pilih menu dulu!</p>
-                <button
-                    @click="tutupKeranjang()"
-                    class="mt-4 bg-primary text-white text-sm font-semibold
+                <button @click="tutupKeranjang()" class="mt-4 bg-primary text-white text-sm font-semibold
                            px-6 py-2.5 rounded-2xl active:scale-95
-                           transition-transform"
-                >
+                           transition-transform">
                     Lihat Menu
                 </button>
             </div>
 
             <!-- Daftar item keranjang -->
-            <template
-                x-for="(item, id) in keranjang"
-                :key="id"
-            >
-                <div
-                    class="flex items-center gap-3 py-3
-                           border-b border-gray-50 last:border-0"
-                >
+            <template x-for="(item, id) in keranjang" :key="id">
+                <div class="flex items-center gap-3 py-3
+                           border-b border-gray-50 last:border-0">
                     <!-- Foto item -->
                     <div class="w-16 h-16 rounded-xl overflow-hidden
                                 bg-gray-100 flex-shrink-0">
-                        <img
-                            x-show="item.foto"
-                            :src="item.foto"
-                            :alt="item.nama_menu"
-                            class="w-full h-full object-cover"
-                        />
-                        <div
-                            x-show="!item.foto"
-                            class="w-full h-full flex items-center
-                                   justify-center text-2xl"
-                        >🍽️</div>
+                        <img x-show="item.foto" :src="item.foto" :alt="item.nama_menu"
+                            class="w-full h-full object-cover" />
+                        <div x-show="!item.foto" class="w-full h-full flex items-center
+                                   justify-center text-2xl">🍽️</div>
                     </div>
 
                     <!-- Info item -->
                     <div class="flex-1 min-w-0">
                         <p class="text-sm font-semibold text-primary
-                                  truncate"
-                           x-text="item.nama_menu">
+                                  truncate" x-text="item.nama_menu">
                         </p>
-                        <p class="text-xs text-secondary font-bold mt-0.5"
-                           x-text="item.harga_format">
+                        <p class="text-xs text-secondary font-bold mt-0.5" x-text="item.harga_format">
                         </p>
 
                         <!-- Subtotal item -->
                         <p class="text-xs text-muted mt-0.5">
                             Subtotal:
-                            <span
-                                class="font-semibold text-primary"
-                                x-text="formatRupiah(item.harga * item.jumlah)"
-                            ></span>
+                            <span class="font-semibold text-primary"
+                                x-text="formatRupiah(item.harga * item.jumlah)"></span>
                         </p>
                     </div>
 
@@ -617,29 +454,20 @@
                     <div class="flex items-center bg-gray-100
                                 rounded-xl overflow-hidden flex-shrink-0">
                         <!-- Kurangi -->
-                        <button
-                            @click="kurangiItem(id)"
-                            class="w-9 h-9 flex items-center justify-center
+                        <button @click="kurangiItem(id)" class="w-9 h-9 flex items-center justify-center
                                    text-primary font-bold text-lg
                                    active:bg-gray-200 transition-colors
-                                   select-none"
-                        >−</button>
+                                   select-none">−</button>
 
                         <!-- Jumlah -->
-                        <span
-                            class="w-8 text-center text-sm font-bold
-                                   text-primary"
-                            x-text="item.jumlah"
-                        ></span>
+                        <span class="w-8 text-center text-sm font-bold
+                                   text-primary" x-text="item.jumlah"></span>
 
                         <!-- Tambah -->
-                        <button
-                            @click="tambahDariKeranjang(id)"
-                            class="w-9 h-9 flex items-center justify-center
+                        <button @click="tambahDariKeranjang(id)" class="w-9 h-9 flex items-center justify-center
                                    text-primary font-bold text-lg
                                    active:bg-gray-200 transition-colors
-                                   select-none"
-                        >+</button>
+                                   select-none">+</button>
                     </div>
 
                 </div>
@@ -649,17 +477,13 @@
         <!-- END ISI KERANJANG -->
 
         <!-- ---------- FOOTER MODAL ---------- -->
-        <div
-            x-show="totalItem > 0"
-            class="px-5 pt-3 pb-6 border-t border-gray-100
-                   flex-shrink-0 bg-white"
-        >
+        <div x-show="totalItem > 0" class="px-5 pt-3 pb-6 border-t border-gray-100
+                   flex-shrink-0 bg-white">
             <!-- Ringkasan harga -->
             <div class="space-y-1.5 mb-4">
                 <div class="flex justify-between text-sm">
                     <span class="text-muted">Subtotal</span>
-                    <span class="font-medium text-primary"
-                          x-text="formatRupiah(totalHarga)">
+                    <span class="font-medium text-primary" x-text="formatRupiah(totalHarga)">
                     </span>
                 </div>
                 <div class="flex justify-between text-sm">
@@ -669,19 +493,15 @@
                 <div class="h-px bg-gray-100 my-2"></div>
                 <div class="flex justify-between">
                     <span class="font-bold text-primary">Total</span>
-                    <span class="font-bold text-lg text-secondary"
-                          x-text="formatRupiah(totalHarga)">
+                    <span class="font-bold text-lg text-secondary" x-text="formatRupiah(totalHarga)">
                     </span>
                 </div>
             </div>
 
             <!-- Tombol Checkout -->
-            <button
-                @click="keCheckout()"
-                class="w-full bg-primary text-white font-bold py-4
+            <button @click="keCheckout()" class="w-full bg-primary text-white font-bold py-4
                        rounded-2xl active:scale-95 transition-transform
-                       shadow-card flex items-center justify-center gap-2"
-            >
+                       shadow-card flex items-center justify-center gap-2">
                 <span>Pesan Sekarang</span>
                 <span>→</span>
             </button>
@@ -695,20 +515,11 @@
     <!-- ===================== -->
     <!-- KONFIRMASI HAPUS SEMUA-->
     <!-- ===================== -->
-    <div
-        x-show="tampilKonfirmasiHapus"
-        x-transition:enter="transition ease-out duration-200"
-        x-transition:enter-start="opacity-0"
-        x-transition:enter-end="opacity-100"
-        class="fixed inset-0 bg-black bg-opacity-60 z-50
-               flex items-center justify-center px-6"
-    >
-        <div
-            x-transition:enter="transition ease-out duration-200"
-            x-transition:enter-start="opacity-0 scale-90"
-            x-transition:enter-end="opacity-100 scale-100"
-            class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl"
-        >
+    <div x-show="tampilKonfirmasiHapus" x-transition:enter="transition ease-out duration-200"
+        x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" class="fixed inset-0 bg-black bg-opacity-60 z-50
+               flex items-center justify-center px-6">
+        <div x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-90"
+            x-transition:enter-end="opacity-100 scale-100" class="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl">
             <div class="text-center mb-5">
                 <div class="text-5xl mb-3">🗑️</div>
                 <h3 class="font-bold text-primary text-lg">Hapus Semua?</h3>
@@ -717,18 +528,12 @@
                 </p>
             </div>
             <div class="flex gap-3">
-                <button
-                    @click="tampilKonfirmasiHapus = false"
-                    class="flex-1 bg-gray-100 text-primary font-semibold
-                           py-3 rounded-2xl active:scale-95 transition-transform"
-                >
+                <button @click="tampilKonfirmasiHapus = false" class="flex-1 bg-gray-100 text-primary font-semibold
+                           py-3 rounded-2xl active:scale-95 transition-transform">
                     Batal
                 </button>
-                <button
-                    @click="hapusSemuaItem()"
-                    class="flex-1 bg-red-500 text-white font-semibold
-                           py-3 rounded-2xl active:scale-95 transition-transform"
-                >
+                <button @click="hapusSemuaItem()" class="flex-1 bg-red-500 text-white font-semibold
+                           py-3 rounded-2xl active:scale-95 transition-transform">
                     Hapus
                 </button>
             </div>
@@ -745,194 +550,194 @@
 {% block extra_scripts %}
 
 <script>
-const DATA_MENU     = {{ data_menu_json|safe }};
-const DATA_KATEGORI = {{ data_kategori_json|safe }};
-const NOMOR_MEJA    = "{{ nomor_meja|escapejs }}";
+    const DATA_MENU = {{ data_menu_json| safe }};
+    const DATA_KATEGORI = {{ data_kategori_json| safe }};
+    const NOMOR_MEJA = "{{ nomor_meja|escapejs }}";
 
-function halamanMenu() {
-    return {
+    function halamanMenu() {
+        return {
 
-        // ---------- STATE ----------
-        dataMenu              : DATA_MENU,
-        dataKategori          : DATA_KATEGORI,
-        filterKategori        : null,
-        kataPencarian         : '',
-        keranjang             : {},
-        tampilKeranjang       : false,
-        tampilKonfirmasiHapus : false,
-        tampilToast           : false,
-        pesanToast            : '',
-
-
-        // ---------- COMPUTED ----------
-
-        get menuTerfilter() {
-            let hasil = this.dataMenu
-
-            if (this.filterKategori !== null) {
-                hasil = hasil.filter(
-                    m => m.kategori_id === this.filterKategori
-                )
-            }
-
-            if (this.kataPencarian.trim() !== '') {
-                const kata = this.kataPencarian.toLowerCase().trim()
-                hasil = hasil.filter(m =>
-                    m.nama_menu.toLowerCase().includes(kata) ||
-                    (m.deskripsi && m.deskripsi.toLowerCase().includes(kata))
-                )
-            }
-
-            return hasil
-        },
-
-        get totalItem() {
-            return Object.values(this.keranjang)
-                .reduce((acc, item) => acc + item.jumlah, 0)
-        },
-
-        get totalHarga() {
-            return Object.values(this.keranjang)
-                .reduce((acc, item) => acc + (item.harga * item.jumlah), 0)
-        },
+            // ---------- STATE ----------
+            dataMenu: DATA_MENU,
+            dataKategori: DATA_KATEGORI,
+            filterKategori: null,
+            kataPencarian: '',
+            keranjang: {},
+            tampilKeranjang: false,
+            tampilKonfirmasiHapus: false,
+            tampilToast: false,
+            pesanToast: '',
 
 
-        // ---------- METHODS ----------
+            // ---------- COMPUTED ----------
 
-       inisialisasi() {
-    const mejaSaatIni  = NOMOR_MEJA;
-    const sessionKey   = "{{ request.session.session_key|escapejs }}";
-    const mejaCache    = localStorage.getItem('eorder_nomor_meja');
-    const sessionCache = localStorage.getItem('eorder_session_key');
+            get menuTerfilter() {
+                let hasil = this.dataMenu
 
-    // ✅ Cek meja DAN session key
-    if (mejaCache === mejaSaatIni && sessionCache === sessionKey) {
-        // User sama, meja sama → load keranjang dari cache
-        const tersimpan = localStorage.getItem('eorder_keranjang');
-        if (tersimpan) {
-            try {
-                this.keranjang = JSON.parse(tersimpan);
-            } catch(e) {
-                this.keranjang = {};
-            }
-        }
-    } else {
-        // User berbeda atau meja berbeda → reset keranjang
-        this.keranjang = {};
-        localStorage.removeItem('eorder_keranjang');
-        localStorage.setItem('eorder_nomor_meja',  mejaSaatIni);
-        localStorage.setItem('eorder_session_key', sessionKey);
-    }
-},
+                if (this.filterKategori !== null) {
+                    hasil = hasil.filter(
+                        m => m.kategori_id === this.filterKategori
+                    )
+                }
 
-        dalamKeranjang(idMenu) {
-            return !!this.keranjang[String(idMenu)]
-        },
+                if (this.kataPencarian.trim() !== '') {
+                    const kata = this.kataPencarian.toLowerCase().trim()
+                    hasil = hasil.filter(m =>
+                        m.nama_menu.toLowerCase().includes(kata) ||
+                        (m.deskripsi && m.deskripsi.toLowerCase().includes(kata))
+                    )
+                }
 
-        tambahKeKeranjang(item) {
-            const id = String(item.id)
+                return hasil
+            },
 
-            if (this.keranjang[id]) {
-                this.keranjang[id].jumlah++
-            } else {
-                this.keranjang = {
-                    ...this.keranjang,
-                    [id]: {
-                        id          : item.id,
-                        nama_menu   : item.nama_menu,
-                        harga       : item.harga,
-                        harga_format: item.harga_format,
-                        foto        : item.foto,
-                        jumlah      : 1,
+            get totalItem() {
+                return Object.values(this.keranjang)
+                    .reduce((acc, item) => acc + item.jumlah, 0)
+            },
+
+            get totalHarga() {
+                return Object.values(this.keranjang)
+                    .reduce((acc, item) => acc + (item.harga * item.jumlah), 0)
+            },
+
+
+            // ---------- METHODS ----------
+
+            inisialisasi() {
+                const mejaSaatIni = NOMOR_MEJA;
+                const sessionKey = "{{ request.session.session_key|escapejs }}";
+                const mejaCache = localStorage.getItem('eorder_nomor_meja');
+                const sessionCache = localStorage.getItem('eorder_session_key');
+
+                // ✅ Cek meja DAN session key
+                if (mejaCache === mejaSaatIni && sessionCache === sessionKey) {
+                    // User sama, meja sama → load keranjang dari cache
+                    const tersimpan = localStorage.getItem('eorder_keranjang');
+                    if (tersimpan) {
+                        try {
+                            this.keranjang = JSON.parse(tersimpan);
+                        } catch (e) {
+                            this.keranjang = {};
+                        }
+                    }
+                } else {
+                    // User berbeda atau meja berbeda → reset keranjang
+                    this.keranjang = {};
+                    localStorage.removeItem('eorder_keranjang');
+                    localStorage.setItem('eorder_nomor_meja', mejaSaatIni);
+                    localStorage.setItem('eorder_session_key', sessionKey);
+                }
+            },
+
+            dalamKeranjang(idMenu) {
+                return !!this.keranjang[String(idMenu)]
+            },
+
+            tambahKeKeranjang(item) {
+                const id = String(item.id)
+
+                if (this.keranjang[id]) {
+                    this.keranjang[id].jumlah++
+                } else {
+                    this.keranjang = {
+                        ...this.keranjang,
+                        [id]: {
+                            id: item.id,
+                            nama_menu: item.nama_menu,
+                            harga: item.harga,
+                            harga_format: item.harga_format,
+                            foto: item.foto,
+                            jumlah: 1,
+                        }
                     }
                 }
-            }
 
-            this.simpanKeranjang()
-            this.tampilkanToast(`✅ ${item.nama_menu} ditambahkan!`)
-        },
-
-        tambahDariKeranjang(id) {
-            if (this.keranjang[id]) {
-                this.keranjang[id].jumlah++
                 this.simpanKeranjang()
-            }
-        },
+                this.tampilkanToast(`✅ ${item.nama_menu} ditambahkan!`)
+            },
 
-        kurangiItem(id) {
-            id = String(id)
-            if (!this.keranjang[id]) return
-
-            if (this.keranjang[id].jumlah > 1) {
-                this.keranjang[id].jumlah--
-            } else {
-                const baru = { ...this.keranjang }
-                delete baru[id]
-                this.keranjang = baru
-                this.tampilkanToast('🗑️ Item dihapus dari keranjang')
-            }
-
-            this.simpanKeranjang()
-        },
-
-        bukaKeranjang() {
-            this.tampilKeranjang = true
-        },
-
-        tutupKeranjang() {
-            this.tampilKeranjang = false
-        },
-
-        konfirmasiHapusSemua() {
-            this.tampilKonfirmasiHapus = true
-        },
-
-        hapusSemuaItem() {
-            this.keranjang             = {}
-            this.tampilKonfirmasiHapus = false
-            this.tampilKeranjang       = false
-            localStorage.removeItem('eorder_keranjang')
-            this.tampilkanToast('🗑️ Keranjang dikosongkan')
-        },
-
-        keCheckout() {
-            fetch('{% url "pelanggan:simpan_keranjang" %}', {
-                method : 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken' : '{{ csrf_token }}',
-                },
-                body: JSON.stringify({ keranjang: this.keranjang })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.status === 'ok') {
-                    window.location.href = '{% url "pelanggan:checkout" %}'
+            tambahDariKeranjang(id) {
+                if (this.keranjang[id]) {
+                    this.keranjang[id].jumlah++
+                    this.simpanKeranjang()
                 }
-            })
-            .catch(() => {
-                this.tampilkanToast('❌ Gagal proses, coba lagi')
-            })
-        },
+            },
 
-        simpanKeranjang() {
-            localStorage.setItem(
-                'eorder_keranjang',
-                JSON.stringify(this.keranjang)
-            )
-        },
+            kurangiItem(id) {
+                id = String(id)
+                if (!this.keranjang[id]) return
 
-        tampilkanToast(pesan) {
-            this.pesanToast  = pesan
-            this.tampilToast = true
-            setTimeout(() => { this.tampilToast = false }, 2000)
-        },
+                if (this.keranjang[id].jumlah > 1) {
+                    this.keranjang[id].jumlah--
+                } else {
+                    const baru = { ...this.keranjang }
+                    delete baru[id]
+                    this.keranjang = baru
+                    this.tampilkanToast('🗑️ Item dihapus dari keranjang')
+                }
 
-        formatRupiah(angka) {
-            return 'Rp ' + angka.toLocaleString('id-ID')
-        },
+                this.simpanKeranjang()
+            },
 
+            bukaKeranjang() {
+                this.tampilKeranjang = true
+            },
+
+            tutupKeranjang() {
+                this.tampilKeranjang = false
+            },
+
+            konfirmasiHapusSemua() {
+                this.tampilKonfirmasiHapus = true
+            },
+
+            hapusSemuaItem() {
+                this.keranjang = {}
+                this.tampilKonfirmasiHapus = false
+                this.tampilKeranjang = false
+                localStorage.removeItem('eorder_keranjang')
+                this.tampilkanToast('🗑️ Keranjang dikosongkan')
+            },
+
+            keCheckout() {
+                fetch('{% url "pelanggan:simpan_keranjang" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}',
+                    },
+                    body: JSON.stringify({ keranjang: this.keranjang })
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.status === 'ok') {
+                            window.location.href = '{% url "pelanggan:checkout" %}'
+                        }
+                    })
+                    .catch(() => {
+                        this.tampilkanToast('❌ Gagal proses, coba lagi')
+                    })
+            },
+
+            simpanKeranjang() {
+                localStorage.setItem(
+                    'eorder_keranjang',
+                    JSON.stringify(this.keranjang)
+                )
+            },
+
+            tampilkanToast(pesan) {
+                this.pesanToast = pesan
+                this.tampilToast = true
+                setTimeout(() => { this.tampilToast = false }, 2000)
+            },
+
+            formatRupiah(angka) {
+                return 'Rp ' + angka.toLocaleString('id-ID')
+            },
+
+        }
     }
-}
 </script>
 {% endblock %}

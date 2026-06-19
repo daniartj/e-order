@@ -5,35 +5,35 @@
 <div class="min-h-screen bg-light flex items-center
             justify-center px-4">
     <div class="w-full max-w-sm">
-        <div class="bg-white rounded-3xl shadow-card p-8 text-center">
+        <div class="bg-white rounded-3xl shadow-soft border border-gray-100/50 p-8 text-center">
 
-            <div class="w-24 h-24 bg-red-100 rounded-full flex items-center
+            <div class="w-20 h-20 bg-red-50 rounded-full flex items-center
                         justify-center mx-auto mb-6">
-                <span class="text-5xl">📵</span>
+                <span class="text-4xl">📵</span>
             </div>
 
-            <h1 class="text-2xl font-extrabold text-primary mb-3">
+            <h1 class="text-xl font-bold text-primary mb-2.5 tracking-tight">
                 Akses Ditolak
             </h1>
 
-            <p class="text-muted text-sm leading-relaxed mb-6">
+            <p class="text-muted text-xs leading-relaxed mb-6">
                 {{ pesan }}
             </p>
 
-            <div class="bg-gray-50 rounded-2xl p-4 mb-6">
-                <p class="text-xs text-muted mb-1">
+            <div class="bg-gray-50 rounded-2xl p-4.5 mb-6 border border-gray-100/30 text-left">
+                <p class="text-[11px] font-bold text-muted uppercase tracking-wider mb-2">
                     📶 Langkah-langkah:
                 </p>
-                <ol class="text-sm text-primary space-y-1 text-left">
+                <ol class="text-xs text-primary space-y-1.5 font-medium">
                     <li>1. Buka pengaturan WiFi di HP Anda</li>
-                    <li>2. Hubungkan ke WiFi kafe</li>
-                    <li>3. Scan ulang QR Code di meja</li>
+                    <li>2. Hubungkan ke jaringan WiFi kafe</li>
+                    <li>3. Pindai ulang QR Code di meja Anda</li>
                 </ol>
             </div>
 
-            <p class="text-xs text-muted">
+            <p class="text-[11px] text-muted font-medium">
                 Password WiFi:
-                <code class="bg-gray-100 px-2 py-0.5 rounded font-mono">
+                <code class="bg-gray-100 text-primary px-2.5 py-1 rounded font-mono font-bold">
                     {{ wifi_password }}
                 </code>
             </p>

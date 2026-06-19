@@ -10,11 +10,14 @@
 
     <!-- ===================== -->
     <!-- HEADER                -->
+    <!-- ===================== -->    <!-- ===================== -->
+    <!-- HEADER                -->
     <!-- ===================== -->
-    <div class="bg-white shadow-soft sticky top-0 z-20">
-        <div class="px-4 py-4 max-w-lg mx-auto">
-            <h1 class="text-base font-bold text-primary text-center">
-                E-Order ☕
+    <div class="bg-white/95 backdrop-blur-md border-b border-gray-100 sticky top-0 z-20">
+        <div class="px-4 py-3.5 max-w-lg mx-auto">
+            <h1 class="text-base font-bold text-primary text-center tracking-tight flex items-center justify-center gap-2">
+                <img src="{% static 'img/logo.png' %}" alt="E-Order" class="w-5.5 h-5.5 object-contain" />
+                E-Order
             </h1>
         </div>
     </div>
@@ -25,7 +28,7 @@
         <!-- ===================== -->
         <!-- ANIMASI SUKSES        -->
         <!-- ===================== -->
-        <div class="bg-white rounded-3xl shadow-soft p-8 text-center">
+        <div class="bg-white rounded-3xl shadow-soft border border-gray-100/50 p-8 text-center">
 
             <!-- Icon animasi -->
             <div
@@ -37,45 +40,45 @@
                     x-transition:enter="transition ease-out duration-500"
                     x-transition:enter-start="opacity-0 scale-50"
                     x-transition:enter-end="opacity-100 scale-100"
-                    class="w-24 h-24 bg-green-100 rounded-full flex items-center
+                    class="w-20 h-20 bg-green-50 rounded-full flex items-center
                            justify-center mx-auto mb-5"
                 >
-                    <span class="text-5xl">✅</span>
+                    <span class="text-4xl">✅</span>
                 </div>
             </div>
 
-            <h2 class="text-2xl font-extrabold text-primary">
+            <h2 class="text-xl font-bold text-primary tracking-tight">
                 Pesanan Diterima!
             </h2>
-            <p class="text-muted text-sm mt-2">
+            <p class="text-muted text-xs mt-1.5 font-medium">
                 Pesanan Anda sedang kami proses
             </p>
 
             <!-- Nomor Pesanan -->
-            <div class="bg-gray-50 rounded-2xl px-4 py-3 mt-5">
-                <p class="text-xs text-muted mb-1">Nomor Pesanan</p>
-                <p class="text-lg font-extrabold text-primary tracking-wide">
+            <div class="bg-gray-50 rounded-2xl px-4 py-3 mt-5 border border-gray-100/30">
+                <p class="text-[10px] font-bold text-muted uppercase tracking-wider mb-1">Nomor Pesanan</p>
+                <p class="text-lg font-extrabold text-primary tracking-wide tabular-nums">
                     {{ pesanan.nomor_pesanan }}
                 </p>
             </div>
 
             <!-- Info meja & waktu -->
             <div class="flex gap-3 mt-3">
-                <div class="flex-1 bg-gray-50 rounded-2xl px-3 py-2.5">
-                    <p class="text-xs text-muted">Meja</p>
-                    <p class="text-sm font-bold text-primary">
+                <div class="flex-1 bg-gray-50 rounded-2xl px-3 py-2.5 border border-gray-100/30">
+                    <p class="text-[10px] font-bold text-muted uppercase tracking-wider">Meja</p>
+                    <p class="text-xs font-bold text-primary mt-0.5">
                         {{ pesanan.meja.nomor_meja }}
                     </p>
                 </div>
-                <div class="flex-1 bg-gray-50 rounded-2xl px-3 py-2.5">
-                    <p class="text-xs text-muted">Pembayaran</p>
-                    <p class="text-sm font-bold text-primary">
+                <div class="flex-1 bg-gray-50 rounded-2xl px-3 py-2.5 border border-gray-100/30">
+                    <p class="text-[10px] font-bold text-muted uppercase tracking-wider">Metode</p>
+                    <p class="text-xs font-bold text-primary mt-0.5">
                         {{ pesanan.get_metode_bayar_display }}
                     </p>
                 </div>
-                <div class="flex-1 bg-gray-50 rounded-2xl px-3 py-2.5">
-                    <p class="text-xs text-muted">Waktu</p>
-                    <p class="text-sm font-bold text-primary">
+                <div class="flex-1 bg-gray-50 rounded-2xl px-3 py-2.5 border border-gray-100/30">
+                    <p class="text-[10px] font-bold text-muted uppercase tracking-wider">Waktu</p>
+                    <p class="text-xs font-bold text-primary mt-0.5 tabular-nums">
                         {{ pesanan.waktu_pesan|time:"H:i" }}
                     </p>
                 </div>
@@ -87,11 +90,11 @@
         <!-- ===================== -->
         <!-- STATUS PESANAN        -->
         <!-- ===================== -->
-        <div class="bg-white rounded-3xl shadow-soft p-5">
+        <div class="bg-white rounded-3xl shadow-soft border border-gray-100/50 p-5">
 
-            <h3 class="text-sm font-bold text-primary mb-4">
+            <h3 class="text-xs font-bold text-primary uppercase tracking-wider mb-4">
                 📊 Status Pesanan
-            </h3>
+            </h3>    </h3>
 
             <!-- Timeline status -->
             <div class="space-y-0">
@@ -208,32 +211,32 @@
         <!-- ===================== -->
         <!-- RINGKASAN ITEM        -->
         <!-- ===================== -->
-        <div class="bg-white rounded-3xl shadow-soft overflow-hidden">
+        <div class="bg-white rounded-3xl shadow-soft border border-gray-100/50 overflow-hidden">
 
-            <div class="px-5 py-4 border-b border-gray-50">
-                <h3 class="text-sm font-bold text-primary">🧾 Detail Pesanan</h3>
+            <div class="px-5 py-3.5 border-b border-gray-50 bg-gray-50/50">
+                <h3 class="text-xs font-bold text-primary tracking-tight uppercase">🧾 Detail Pesanan</h3>
             </div>
 
             <div class="divide-y divide-gray-50">
                 {% for item in pesanan.detail.all %}
                 <div class="px-5 py-3 flex items-center justify-between">
                     <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 bg-gray-100 rounded-xl
+                        <div class="w-10 h-10 bg-gray-50 rounded-xl
                                     flex items-center justify-center
-                                    text-lg flex-shrink-0">
+                                    text-lg flex-shrink-0 border border-gray-100/30">
                             🍽️
                         </div>
                         <div>
-                            <p class="text-sm font-semibold text-primary">
+                            <p class="text-xs font-semibold text-primary">
                                 {{ item.nama_menu_snapshot }}
                             </p>
-                            <p class="text-xs text-muted">
+                            <p class="text-[10px] text-muted mt-0.5 tabular-nums">
                                 {{ item.jumlah }}x
                                 Rp {{ item.harga_snapshot|floatformat:0 }}
                             </p>
                         </div>
                     </div>
-                    <p class="text-sm font-bold text-primary">
+                    <p class="text-xs font-bold text-primary tabular-nums">
                         {{ item.subtotal_format }}
                     </p>
                 </div>
@@ -243,8 +246,8 @@
             <!-- Total -->
             <div class="px-5 py-4 bg-gray-50 border-t border-gray-100">
                 <div class="flex justify-between items-center">
-                    <span class="text-sm font-bold text-primary">Total</span>
-                    <span class="text-lg font-extrabold text-secondary">
+                    <span class="text-xs font-bold text-primary uppercase tracking-wider">Total</span>
+                    <span class="text-base font-extrabold text-secondary tabular-nums">
                         {{ pesanan.total_format }}
                     </span>
                 </div>
@@ -257,9 +260,9 @@
         <!-- CATATAN               -->
         <!-- ===================== -->
         {% if pesanan.catatan %}
-        <div class="bg-white rounded-3xl shadow-soft px-5 py-4">
-            <h3 class="text-sm font-bold text-primary mb-1">📝 Catatan</h3>
-            <p class="text-sm text-muted">{{ pesanan.catatan }}</p>
+        <div class="bg-white rounded-3xl shadow-soft border border-gray-100/50 px-5 py-4">
+            <h3 class="text-xs font-bold text-primary tracking-tight uppercase mb-1">📝 Catatan</h3>
+            <p class="text-xs text-muted leading-relaxed">{{ pesanan.catatan }}</p>
         </div>
         {% endif %}
 
@@ -268,19 +271,19 @@
         <!-- INFO WHATSAPP         -->
         <!-- ===================== -->
         {% if pesanan.nomor_whatsapp %}
-        <div class="bg-green-50 rounded-3xl px-5 py-4 border border-green-200">
+        <div class="bg-green-50/50 rounded-3xl px-5 py-4 border border-green-100">
             <div class="flex items-start gap-3">
                 <span class="text-2xl">📲</span>
                 <div>
-                    <p class="text-sm font-semibold text-green-800">
+                    <p class="text-xs font-bold text-green-800 tracking-tight">
                         Notifikasi WhatsApp Aktif
                     </p>
-                    <p class="text-xs text-green-700 mt-0.5">
-                        Kami akan kirim update ke
+                    <p class="text-[11px] text-green-700 mt-1 leading-relaxed">
+                        Kami akan mengirimkan update status ke nomor
                         <span class="font-bold">
                             +{{ pesanan.nomor_whatsapp }}
                         </span>
-                        saat pesanan diproses & selesai.
+                        secara otomatis ketika pesanan Anda diproses dan selesai.
                     </p>
                 </div>
             </div>
@@ -294,9 +297,9 @@
         <div class="pb-6">
             
                <a href="{% url 'pelanggan:daftar_menu' %}"
-                class="block w-full bg-primary text-white font-bold py-4
-                       rounded-2xl text-center active:scale-95
-                       transition-transform shadow-card"
+                class="block w-full bg-primary hover:bg-primary/95 text-white font-bold py-4
+                       rounded-2xl text-center active:scale-95 text-sm
+                       transition-all shadow-card"
             >
                 ← Kembali ke Menu
             </a>
@@ -321,7 +324,7 @@ function halamanSukses() {
         get labelStatus() {
             const label = {
                 'pending' : 'Menunggu diproses...',
-                'diproses': 'Sedang diproses,
+                'diproses': 'Sedang diproses...',
                 'selesai' : 'Pesanan siap disajikan!',
                 'dibatal' : 'Pesanan dibatalkan',
             }

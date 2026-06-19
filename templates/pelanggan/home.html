@@ -2,55 +2,54 @@
 {% block title %}E-Order — Selamat Datang{% endblock %}
 
 {% block content %}
-<div class="min-h-screen flex flex-col items-center
-            justify-center bg-primary px-6">
+<div class="relative min-h-screen flex flex-col items-center justify-center bg-primary overflow-hidden px-6">
+    <!-- Ambient background light -->
+    <div class="absolute -top-40 -left-40 w-96 h-96 bg-secondary/10 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute -bottom-40 -right-40 w-96 h-96 bg-secondary/5 rounded-full blur-3xl pointer-events-none"></div>
 
-    <!-- Logo animasi -->
+    <!-- Logo & Content -->
     <div
         x-data="{ tampil: false }"
         x-init="setTimeout(() => tampil = true, 100)"
-        class="text-center"
+        class="relative z-10 text-center"
     >
         <div
             x-show="tampil"
-            x-transition:enter="transition ease-out duration-700"
-            x-transition:enter-start="opacity-0 scale-75"
-            x-transition:enter-end="opacity-100 scale-100"
+            x-transition:enter="transition ease-out duration-1000"
+            x-transition:enter-start="opacity-0 translate-y-8 scale-95"
+            x-transition:enter-end="opacity-100 translate-y-0 scale-100"
         >
-            <!-- Icon -->
-            <div class="w-48 h-48 flex items-center justify-center mx-auto mb-0 ">
-                <img src="{% load static %}{% static 'img/logo.png' %}" alt="E-Order" class="w-40 h-40 object-contain" />
+            <!-- Logo Icon with glow/shadow -->
+            <div class="w-48 h-48 flex items-center justify-center mx-auto mb-4 relative">
+                <div class="absolute inset-0 bg-secondary/20 rounded-full blur-2xl animate-pulse"></div>
+                <img src="{% load static %}{% static 'img/logo.png' %}" alt="E-Order" class="relative w-40 h-40 object-contain active:scale-95 transition-transform duration-300" />
             </div>
 
             <!-- Nama -->
-            <h1 class="text-white text-4xl font-extrabold
-                       tracking-tight mb-1">
+            <h1 class="text-white text-4xl font-extrabold tracking-tight mb-2">
                 E-Order
             </h1>
-            <p class="text-white text-opacity-60 text-sm
-                       tracking-widest uppercase mb-12">
+            <p class="text-white/60 text-xs tracking-widest uppercase mb-10">
                 Sistem Pemesanan Digital
             </p>
 
-            <!-- Card instruksi -->
-            <div class="bg-white bg-opacity-10 rounded-3xl p-6
-                        backdrop-blur-sm max-w-xs mx-auto">
+            <!-- Card instruksi: Glassmorphism -->
+            <div class="bg-white/5 border border-white/10 rounded-3xl p-6 backdrop-blur-md max-w-xs mx-auto shadow-premium">
+                <div class="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-3 text-2xl">
+                    📱
+                </div>
                 <p class="text-white font-semibold text-base mb-1">
                     Cara Memesan
                 </p>
-                <p class="text-white text-opacity-70 text-sm
-                           leading-relaxed">
-                    Scan <span class="font-bold text-white">
-                    QR Code</span> di meja Anda untuk mulai
-                    melihat menu dan memesan.
+                <p class="text-white/70 text-sm leading-relaxed">
+                    Scan <span class="font-bold text-white">QR Code</span> di meja Anda untuk mulai memilih menu favorit dan melakukan pemesanan.
                 </p>
             </div>
 
-            <p class="text-white text-opacity-30 text-xs mt-8">
+            <p class="text-white/30 text-xs mt-12 font-medium">
                 E-Order &copy; 2026 — Powered by Django
             </p>
         </div>
     </div>
-
 </div>
 {% endblock %}

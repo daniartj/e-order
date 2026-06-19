@@ -5,28 +5,26 @@
 <div class="min-h-screen bg-light flex items-center
             justify-center px-4">
     <div class="w-full max-w-sm">
-        <div class="bg-white rounded-3xl shadow-card p-8 text-center">
+        <div class="bg-white rounded-3xl shadow-soft border border-gray-100/50 p-8 text-center">
 
-            <div class="w-24 h-24 bg-red-100 rounded-full
+            <div class="w-20 h-20 bg-red-50 rounded-full
                         flex items-center justify-center
                         mx-auto mb-6">
-                <span class="text-5xl"></span>
+                <span class="text-4xl">🪑</span>
             </div>
 
-            <h1 class="text-2xl font-extrabold text-primary mb-3">
+            <h1 class="text-xl font-bold text-primary mb-2.5 tracking-tight">
                 Meja Tidak Ditemukan
             </h1>
 
-            <p class="text-muted text-sm leading-relaxed">
-                Meja <span class="font-bold text-primary">
-                {{ nomor_meja }}</span> tidak tersedia.
-                Pastikan Anda scan QR Code yang benar.
+            <p class="text-muted text-xs leading-relaxed">
+                Nomor meja <span class="font-bold text-primary">{{ nomor_meja }}</span> tidak terdaftar dalam sistem kami. Pastikan Anda memindai QR Code yang benar.
             </p>
 
-            <div class="bg-gray-50 rounded-2xl p-6 mt-6">
-                <div class="text-5xl mb-2">📱</div>
-                <p class="text-xs text-muted">
-                    Scan ulang QR Code di meja Anda
+            <div class="bg-gray-50 rounded-2xl p-6 mt-6 border border-gray-100/30">
+                <div class="text-4xl mb-2">📷</div>
+                <p class="text-[11px] font-semibold text-muted">
+                    Silakan scan ulang QR Code resmi di meja Anda
                 </p>
             </div>
 

@@ -9,8 +9,9 @@
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet"
     />
 
@@ -19,22 +20,23 @@
             theme: {
                 extend: {
                     colors: {
-                        primary  : '#1C1C1E',
-                        secondary: '#F5A623',
+                        primary  : '#121214',
+                        secondary: '#D97706',
                         surface  : '#FFFFFF',
                         muted    : '#6B7280',
-                        light    : '#F9FAFB',
+                        light    : '#F8F9FA',
                     },
                     fontFamily: {
-                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        sans: ['Outfit', 'system-ui', 'sans-serif'],
                     },
                     borderRadius: {
                         '2xl': '1rem',
                         '3xl': '1.5rem',
                     },
                     boxShadow: {
-                        'soft': '0 2px 15px rgba(0,0,0,0.08)',
-                        'card': '0 4px 20px rgba(0,0,0,0.10)',
+                        'soft': '0 4px 20px rgba(18, 18, 20, 0.04)',
+                        'card': '0 8px 30px rgba(18, 18, 20, 0.06)',
+                        'premium': '0 12px 40px rgba(18, 18, 20, 0.10)',
                     }
                 }
             }
