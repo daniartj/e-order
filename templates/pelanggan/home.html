@@ -2,11 +2,7 @@
 {% block title %}E-Order — Selamat Datang{% endblock %}
 
 {% block content %}
-<div class="relative min-h-screen flex flex-col items-center justify-center bg-primary overflow-hidden px-6">
-    <!-- Ambient background light -->
-    <div class="absolute -top-40 -left-40 w-96 h-96 bg-secondary/10 rounded-full blur-3xl pointer-events-none"></div>
-    <div class="absolute -bottom-40 -right-40 w-96 h-96 bg-secondary/5 rounded-full blur-3xl pointer-events-none"></div>
-
+<div class="relative min-h-screen flex flex-col items-center justify-center bg-primary overflow-hidden px-6">a
     <!-- Logo & Content -->
     <div
         x-data="{ tampil: false }"
@@ -21,7 +17,7 @@
         >
             <!-- Logo Icon with glow/shadow -->
             <div class="w-48 h-48 flex items-center justify-center mx-auto mb-4 relative">
-                <div class="absolute inset-0 bg-secondary/20 rounded-full blur-2xl animate-pulse"></div>
+                <div class="absolute inset-0 animate-pulse"></div>
                 <img src="{% load static %}{% static 'img/logo.png' %}" alt="E-Order" class="relative w-40 h-40 object-contain active:scale-95 transition-transform duration-300" />
             </div>
 

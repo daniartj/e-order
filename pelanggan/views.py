@@ -407,8 +407,20 @@ def hapus_session(request):
 @require_POST
 def reset_session(request):
     """Reset timer.
-    Untuk menjaga popup tetap bisa muncul lagi, ubah waktu_masuk ke sekarang
-    (bukan menghapusnya)."""
+    Untuk menjaga popup tetap bisa muncul lagi, ubah waktu_masuk ke sekarang.
+
+    Tambahan: jika session sudah terhapus oleh middleware, nomor_meja bisa hilang.
+    Maka endpoint menerima JSON body opsional {nomor_meja} untuk memulihkan.
+    """
+    try:
+        data = json.loads(request.body or b'{}')
+    except Exception:
+        data = {}
+
+    nomor_meja = data.get('nomor_meja')
+    if nomor_meja:
+        request.session['nomor_meja'] = nomor_meja
+
     request.session['waktu_masuk'] = timezone.now().isoformat()
     request.session.modified = True
     return JsonResponse({'status': 'ok'})

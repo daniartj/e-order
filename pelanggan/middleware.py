@@ -109,10 +109,13 @@ class SessionPelangganMiddleware(MiddlewareMixin):
                 "waktu_masuk_str=", waktu_masuk_str,
             )
 
-
         print(f"[DEBUG SESSION KEYS] nomor_meja={nomor_meja} waktu_masuk_str={waktu_masuk_str}")
 
         if not nomor_meja or not waktu_masuk_str:
+            # Khusus polling session status: wajib return JSON agar fetch(...).res.json() tidak gagal.
+            if request.path == '/api/session-status/':
+                return JsonResponse({'session_expired': True, 'status': 'error'}, status=401)
+
             if butuh_session:
                 return redirect('pelanggan:utama')
             return None
